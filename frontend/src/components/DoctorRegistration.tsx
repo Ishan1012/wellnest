@@ -134,6 +134,14 @@ const DoctorRegistration = (): JSX.Element => {
     const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
+            const maxSize = 2 * 1024 * 1024; // 2MB
+            if (file.size > maxSize) {
+                toast.error("Profile image exceeds the 2MB limit. Please upload a smaller image.");
+                e.target.value = '';
+                setImagePreview(null);
+                setBase64Image(null);
+                return;
+            }
             const reader = new FileReader();
             reader.onload = (event) => {
                 const result = event.target?.result as string;
@@ -300,7 +308,7 @@ const DoctorRegistration = (): JSX.Element => {
                                         <div className="py-4">
                                             <div className="text-4xl mb-4">📷</div>
                                             <p className="text-emerald-800 font-medium">Click to upload profile image</p>
-                                            <p className="text-sm text-emerald-600 mt-2">PNG, JPG up to 5MB</p>
+                                            <p className="text-sm text-emerald-600 mt-2">PNG, JPG up to 2MB</p>
                                         </div>
                                     )}
                                 </div>
