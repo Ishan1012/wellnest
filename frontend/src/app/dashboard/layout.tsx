@@ -3,11 +3,11 @@ import React, { ReactNode, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import { 
-  HomeIcon, 
-  UserGroupIcon, 
-  UsersIcon, 
-  CalendarIcon, 
+import {
+  HomeIcon,
+  UserGroupIcon,
+  UsersIcon,
+  CalendarIcon,
   ArrowLeftOnRectangleIcon,
   ShieldCheckIcon,
   Bars3Icon,
@@ -52,12 +52,14 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 flex font-sans">
-      
+
       {/* Sidebar for Desktop */}
       <aside className="hidden lg:flex flex-col w-64 bg-white border-r border-slate-200">
         {/* Sidebar Header */}
         <div className="h-16 flex items-center gap-3 px-6 border-b border-slate-100 bg-slate-50/50">
-          <ShieldCheckIcon className="h-8 w-8 text-emerald-700" />
+          <div className="h-auto w-7 relative">
+            <Image src={'/images/mascot.png'} height={500} width={500} alt='hero' className='h-auto w-7' />
+          </div>
           <div>
             <h1 className="font-bold text-lg text-slate-900 leading-none">WellNest</h1>
             <span className="text-[10px] text-emerald-700 font-bold tracking-wider uppercase">Admin Portal</span>
@@ -67,10 +69,10 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         {/* Sidebar Profile */}
         <div className="p-4 border-b border-slate-100 flex items-center gap-3">
           <div className="relative w-10 h-10 rounded-full overflow-hidden bg-slate-100 border border-emerald-500/10">
-            <Image 
-              src={userSession?.profile || '/images/user-default.png'} 
-              alt="Admin Profile" 
-              fill 
+            <Image
+              src={userSession?.profile || '/images/user-default.png'}
+              alt="Admin Profile"
+              fill
               className="object-cover"
             />
           </div>
@@ -88,11 +90,10 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
               <Link
                 key={item.name}
                 href={item.href}
-                className={`flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-200 group font-medium text-sm ${
-                  isActive 
-                    ? 'bg-emerald-700 text-white shadow-md shadow-emerald-700/10' 
-                    : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
-                }`}
+                className={`flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-200 group font-medium text-sm ${isActive
+                  ? 'bg-emerald-700 text-white shadow-md shadow-emerald-700/10'
+                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                  }`}
               >
                 <item.icon className={`h-5 w-5 ${isActive ? 'text-white' : 'text-slate-450 group-hover:text-emerald-600'}`} />
                 {item.name}
@@ -118,11 +119,13 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 
       {/* Main Container */}
       <div className="flex-1 flex flex-col min-w-0">
-        
+
         {/* Mobile Header */}
         <header className="lg:hidden h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 z-20">
           <div className="flex items-center gap-2">
-            <ShieldCheckIcon className="h-7 w-7 text-emerald-700" />
+            <div className="h-auto w-7 relative">
+              <Image src={'/images/mascot.png'} height={500} width={500} alt='hero' className='h-auto w-7' />
+            </div>
             <span className="font-bold text-slate-900 text-md uppercase tracking-wider">WellNest Admin</span>
           </div>
           <button
@@ -138,10 +141,10 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           <div className="lg:hidden fixed inset-0 top-16 z-10 bg-white/95 backdrop-blur-md flex flex-col">
             <div className="p-6 border-b border-slate-200 flex items-center gap-3">
               <div className="relative w-12 h-12 rounded-full overflow-hidden bg-slate-100">
-                <Image 
-                  src={userSession?.profile || '/images/user-default.png'} 
-                  alt="Admin Profile" 
-                  fill 
+                <Image
+                  src={userSession?.profile || '/images/user-default.png'}
+                  alt="Admin Profile"
+                  fill
                   className="object-cover"
                 />
               </div>
@@ -158,11 +161,10 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                     key={item.name}
                     href={item.href}
                     onClick={() => setMobileMenuOpen(false)}
-                    className={`flex items-center gap-4 px-5 py-3 rounded-xl ${
-                      isActive 
-                        ? 'bg-emerald-700 text-white shadow-md' 
-                        : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
-                    }`}
+                    className={`flex items-center gap-4 px-5 py-3 rounded-xl ${isActive
+                      ? 'bg-emerald-700 text-white shadow-md'
+                      : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                      }`}
                   >
                     <item.icon className="h-5 w-5" />
                     {item.name}
