@@ -15,8 +15,8 @@ async function callLLM(systemPrompt: string, userPrompt: string): Promise<string
     
     // Fallback models in case one is unavailable or has incorrect pricing/access tier
     const candidateModels = isOpenRouter 
-        ? ["meta-llama/llama-3.1-8b-instruct", "meta-llama/llama-3-8b-instruct:free", "google/gemma-2-9b-it:free"]
-        : ["llama-3.1-8b-instant"];
+        ? ["meta-llama/llama-3.3-70b-instruct:free", "openai/gpt-oss-20b:free", "google/gemma-4-31b-it:free"]
+        : ["openrouter/free"];
 
     let lastError: any = null;
     for (const model of candidateModels) {
