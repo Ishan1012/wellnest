@@ -6,11 +6,28 @@ import { UserSession } from '@/types/type';
 import Image from 'next/image';
 
 const Header = (): JSX.Element => {
-  // const [user, setUser] = useState(getPatients()[0]);
   const [user, setUser] = useState<UserSession | null>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const { isAuthenticated, userSession, isAdmin } = useAuth();
+
+  const decodeJwt = (token: string) => {
+    try {
+      const base64Url = token.split('.')[1];
+      if (!base64Url) return null;
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      }).join(''));
+      return JSON.parse(jsonPayload);
+    } catch (e) {
+      return null;
+    }
+  };
+
+  const decoded = userSession ? decodeJwt(userSession.token) : null;
+  const isDoctor = decoded && decoded.role === "Doctor";
+  const isDoctorOrAdmin = !!(isAdmin || isDoctor);
 
   useEffect(() => {
     const fetchUser = () => {
@@ -41,9 +58,11 @@ const Header = (): JSX.Element => {
           <div className="flex items-center justify-end flex-1">
             {/* Desktop Navigation */}
             <nav className="hidden lg:flex items-center space-x-4 mr-4">
-              <Link href="/appointment" className="text-gray-600 hover:text-emerald-600 px-2 py-1.5 text-sm font-medium transition-colors duration-200">
-                Appointment
-              </Link>
+              {!isDoctorOrAdmin && (
+                <Link href="/appointment" className="text-gray-600 hover:text-emerald-600 px-2 py-1.5 text-sm font-medium transition-colors duration-200">
+                  Appointment
+                </Link>
+              )}
               <Link href="/consult" className="text-gray-600 hover:text-emerald-600 px-2 py-1.5 text-sm font-medium transition-colors duration-200">
                 Smart Consult
               </Link>
@@ -103,9 +122,11 @@ const Header = (): JSX.Element => {
       {isMenuOpen && (
         <div className="lg:hidden">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white">
-            <Link href="/appointment" className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 transition-colors duration-200">
-              Appointment
-            </Link>
+            {!isDoctorOrAdmin && (
+              <Link href="/appointment" className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 transition-colors duration-200">
+                Appointment
+              </Link>
+            )}
             <Link href="/consult" className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 transition-colors duration-200">
                 Smart Consult
               </Link>

@@ -48,6 +48,7 @@ export interface Doctor {
     promotionalUpdates: boolean;
   };
   googleCalendarRefreshToken?: string;
+  status?: string;
 }
 
 export interface PatientInfo {
