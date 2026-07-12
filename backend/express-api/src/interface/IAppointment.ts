@@ -20,6 +20,7 @@ export interface IAppointment extends Document {
 	time: string;
 	patientInfo: PatientInfo;
 	reportUrl?: string;
+	paymentStatus?: string;
 	createdAt: Date;
 }
 
@@ -31,5 +32,6 @@ export interface PopulatedAppointment extends Document {
 	date: string;
 	time: string;
 	patientInfo: PatientInfo;
+	paymentStatus?: string;
 	createdAt: Date;
 }

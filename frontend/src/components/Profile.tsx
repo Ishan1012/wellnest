@@ -216,7 +216,16 @@ const AppointmentCard: FC<AppointmentCardProps> = ({ appointment, isPatientView 
 					<p className="text-xs text-slate-500 font-semibold mt-0.5">{new Date(appointment.date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} at {appointment.time}</p>
 				</div>
 			</div>
-			<ChevronRight className="text-slate-400" />
+			<div className="flex items-center gap-3">
+				<span className={`inline-flex px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
+					appointment.paymentStatus === 'paid'
+						? 'bg-emerald-105 bg-emerald-100 text-emerald-800'
+						: 'bg-yellow-105 bg-yellow-100 text-yellow-805 text-yellow-800 border border-yellow-200'
+				}`}>
+					{appointment.paymentStatus === 'paid' ? 'Paid' : 'Pending'}
+				</span>
+				<ChevronRight className="text-slate-400" />
+			</div>
 		</div>
 	);
 };
@@ -264,6 +273,13 @@ const RecordCard: FC<RecordCardProps> = ({ isPatient, record }) => {
 						Report
 					</a>
 				)}
+				<span className={`inline-flex px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider mr-2 ${
+					record.paymentStatus === 'paid'
+						? 'bg-emerald-105 bg-emerald-100 text-emerald-800'
+						: 'bg-yellow-105 bg-yellow-100 text-yellow-805 text-yellow-800 border border-yellow-200'
+				}`}>
+					{record.paymentStatus === 'paid' ? 'Paid' : 'Pending'}
+				</span>
 				<ChevronRight className="text-slate-400" />
 			</div>
 		</div>

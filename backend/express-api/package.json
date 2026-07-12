@@ -42,6 +42,7 @@
     "mongoose": "^8.19.2",
     "multer": "^2.0.2",
     "nodemailer": "^9.0.3",
+    "razorpay": "^2.9.6",
     "uuid": "^14.0.1"
   }
 }

@@ -70,6 +70,7 @@ export interface AppointmentDetails {
   time: string;
   patientInfo: PatientInfo;
   reportUrl?: string;
+  paymentStatus?: string;
 }
 
 export interface Summary {

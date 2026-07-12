@@ -76,9 +76,16 @@ export default function RecordDetails() {
                 <h1 className="text-2xl font-bold text-slate-900 mt-2">{appointment.type}</h1>
                 <p className="text-xs text-slate-450 mt-0.5">ID: {appointment.id}</p>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <span className="inline-flex px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-200">
                   {appointment.status || 'Completed'}
+                </span>
+                <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border ${
+                  appointment.paymentStatus === 'paid'
+                    ? 'bg-emerald-100 text-emerald-800 border-emerald-200'
+                    : 'bg-yellow-100 text-yellow-800 border-yellow-200'
+                }`}>
+                  Payment: {appointment.paymentStatus === 'paid' ? 'Paid' : 'Pending'}
                 </span>
                 {summary?.urgencyLevel && (
                   <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border ${getUrgencyBadge(summary.urgencyLevel)}`}>
@@ -206,16 +213,6 @@ export default function RecordDetails() {
               </div>
             </div>
           )}
-
-          {/* Back Button */}
-          <div className="pt-4">
-            <button
-              onClick={() => router.back()}
-              className="inline-flex items-center gap-2 text-sm font-bold text-emerald-700 hover:text-emerald-850 cursor-pointer"
-            >
-              <ArrowLeftIcon className="h-4 w-4" /> Back to Profile Records
-            </button>
-          </div>
 
         </div>
       ) : (

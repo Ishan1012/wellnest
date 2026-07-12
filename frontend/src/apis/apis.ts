@@ -82,3 +82,7 @@ export const getDoctorAppointmentsApi = () => api.get(`/appointment/doctor/me`);
 export const getCalendarConnectUrlApi = () => api.get('/calendar/connect');
 export const getCalendarStatusApi = () => api.get('/calendar/status');
 export const disconnectCalendarApi = () => api.post('/calendar/disconnect');
+
+export const createPaymentOrderApi = (appointmentId: string) => api.post('/transaction/create-order', { appointmentId });
+export const verifyPaymentApi = (orderId: string, paymentId: string, signature: string) => api.post('/transaction/verify', { orderId, paymentId, signature });
+export const getTransactionApi = (appointmentId: string) => api.get(`/transaction/${appointmentId}`);

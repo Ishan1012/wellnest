@@ -63,15 +63,11 @@ export async function generatePreVisitSummary(
     concern: string,
     appointmentType: string
 ): Promise<{ summary: string; urgencyLevel: "low" | "medium" | "high" | "critical" }> {
-    const systemPrompt = `You are a medical triage assistant. Given patient intake information, generate a concise pre-visit briefing for the doctor. Include:
-1. A brief patient profile summary
-2. Key symptoms and potential differential diagnoses to consider
-3. Suggested questions for the doctor to ask
-4. An urgency assessment
+    const systemPrompt = `You are a medical triage assistant. Given patient intake information, generate a concise pre-visit briefing for the doctor.
 
-At the very end of your response, on a new line, write exactly one of these urgency tags: [URGENCY:low] [URGENCY:medium] [URGENCY:high] [URGENCY:critical]
+The briefing body text MUST be strictly 50 words or fewer. Do not write more than 50 words. Keep it professional.
 
-Keep the summary professional and under 300 words.`;
+At the very end of your response, on a new line, write exactly one of these urgency tags: [URGENCY:low] [URGENCY:medium] [URGENCY:high] [URGENCY:critical]`;
 
     const userPrompt = `Patient: ${patientName}, Age: ${patientAge}, Gender: ${patientGender}
 Appointment Type: ${appointmentType}
@@ -98,13 +94,10 @@ export async function generatePostVisitSummary(
     doctorNotes: string,
     prescription: string
 ): Promise<string> {
-    const systemPrompt = `You are a patient communication assistant. Given the doctor's consultation notes and prescription, generate a clear, patient-friendly post-visit summary. Include:
-1. What was discussed during the visit
-2. Diagnosis or findings (in simple language)
-3. Treatment plan and medications prescribed
-4. Follow-up instructions or lifestyle recommendations
+    const systemPrompt = `You are a patient communication assistant. Given the doctor's consultation notes and prescription, generate a clear, patient-friendly post-visit summary.
 
-Use simple, non-medical language. Be reassuring and professional. Keep under 300 words.`;
+Use simple, non-medical language. Be reassuring and professional.
+The post-visit summary MUST be strictly 50 words or fewer. Do not write more than 50 words.`;
 
     const userPrompt = `Patient: ${patientName}
 Original Concern: ${concern}

@@ -123,6 +123,7 @@ export default function AdminAppointments() {
                 <th className="px-6 py-4">Doctor Assigned</th>
                 <th className="px-6 py-4">Date & Time</th>
                 <th className="px-6 py-4">Status</th>
+                <th className="px-6 py-4">Payment</th>
                 <th className="px-6 py-4 text-right">Details</th>
               </tr>
             </thead>
@@ -160,6 +161,15 @@ export default function AdminAppointments() {
                             {app.status || 'Scheduled'}
                           </span>
                         </td>
+                        <td className="px-6 py-4">
+                          <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-semibold uppercase tracking-wider ${
+                            app.paymentStatus === 'paid'
+                              ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                              : 'bg-yellow-100 text-yellow-800 border border-yellow-200'
+                          }`}>
+                            {app.paymentStatus === 'paid' ? 'Paid (₹200)' : 'Pending'}
+                          </span>
+                        </td>
                         <td className="px-6 py-4 text-right">
                           <button
                             onClick={() => toggleExpand(app.id)}
@@ -177,7 +187,7 @@ export default function AdminAppointments() {
                       {/* Expanded Section */}
                       {isExpanded && (
                         <tr className="bg-slate-50/40 border-b border-slate-100">
-                          <td colSpan={6} className="px-8 py-5 text-slate-600">
+                          <td colSpan={7} className="px-8 py-5 text-slate-600">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                               <div>
                                 <h3 className="font-bold text-slate-900 text-xs uppercase tracking-wider mb-2 border-b border-slate-200 pb-1">Patient Vitals & Contact</h3>

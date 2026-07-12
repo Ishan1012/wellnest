@@ -185,13 +185,22 @@ export default function DoctorDashboardContent() {
                           <p className="font-semibold text-slate-800 text-sm">{appt.patientInfo.name}</p>
                           <p className="text-slate-400 text-xs mt-0.5">Concern: {appt.patientInfo.concern}</p>
                         </div>
-                        <span className={`inline-flex px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
-                          appt.status === 'Completed'
-                            ? 'bg-emerald-100 text-emerald-800'
-                            : 'bg-sky-100 text-sky-850 text-sky-850'
-                        }`}>
-                          {appt.status || 'Scheduled'}
-                        </span>
+                        <div className="flex flex-col items-end gap-1.5">
+                          <span className={`inline-flex px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
+                            appt.status === 'Completed'
+                              ? 'bg-emerald-100 text-emerald-800'
+                              : 'bg-sky-100 text-sky-850'
+                          }`}>
+                            {appt.status || 'Scheduled'}
+                          </span>
+                          <span className={`inline-flex px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
+                            appt.paymentStatus === 'paid'
+                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-100'
+                              : 'bg-yellow-50 text-yellow-750 border border-yellow-100'
+                          }`}>
+                            {appt.paymentStatus === 'paid' ? 'Paid' : 'Unpaid'}
+                          </span>
+                        </div>
                       </div>
 
                       <div className="flex items-center gap-3 mt-1 text-slate-500 text-xs">
@@ -224,11 +233,20 @@ export default function DoctorDashboardContent() {
                     <h2 className="text-xl font-bold text-slate-900">{selectedAppt.patientInfo.name}</h2>
                     <p className="text-xs text-slate-450 mt-1">ID: {selectedAppt.id} | Age: {selectedAppt.patientInfo.age} | Gender: {selectedAppt.patientInfo.gender}</p>
                   </div>
-                  {summary?.urgencyLevel && (
-                    <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider border ${getUrgencyBadge(summary.urgencyLevel)}`}>
-                      Urgency: {summary.urgencyLevel}
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider border ${
+                      selectedAppt.paymentStatus === 'paid'
+                        ? 'bg-emerald-100 text-emerald-800 border-emerald-200'
+                        : 'bg-yellow-105 bg-yellow-100 text-yellow-800 border-yellow-200'
+                    }`}>
+                      Payment: {selectedAppt.paymentStatus === 'paid' ? 'Paid' : 'Unpaid'}
                     </span>
-                  )}
+                    {summary?.urgencyLevel && (
+                      <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider border ${getUrgencyBadge(summary.urgencyLevel)}`}>
+                        Urgency: {summary.urgencyLevel}
+                      </span>
+                    )}
+                  </div>
                 </div>
 
                 {/* AI Pre-Visit summary Panel */}
@@ -238,7 +256,16 @@ export default function DoctorDashboardContent() {
                     LLM Pre-Visit AI Intake summary (Doctor-Only Triage)
                   </h3>
                   <div className="mt-1">
-                    <MarkdownRenderer content={summary?.preVisitSummary || ""} />
+                    {loadingSummary ? (
+                      <div className="flex items-center gap-2 text-emerald-700 py-3">
+                        <div className="w-4 h-4 border-2 border-emerald-600 border-t-transparent rounded-full animate-spin"></div>
+                        <p className="text-xs font-semibold animate-pulse">Generating / loading AI pre-visit intake summary...</p>
+                      </div>
+                    ) : summary?.preVisitSummary ? (
+                      <MarkdownRenderer content={summary.preVisitSummary} />
+                    ) : (
+                      <p className="text-xs text-slate-505 text-slate-500 italic">No AI pre-visit intake details generated for this appointment concern.</p>
+                    )}
                   </div>
                 </div>
 

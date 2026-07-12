@@ -21,10 +21,9 @@ export class SummaryService {
                 return existing;
             }
 
-            // Fetch the populated appointment
-            const appointment = await this.appointmentRepository.findById(
-                // We need to find by _id, not by custom id
-                appointmentObjectId.toString()
+            // Fetch the populated appointment by internal ObjectId
+            const appointment = await this.appointmentRepository.findByObjectId(
+                appointmentObjectId
             );
 
             if (!appointment) {

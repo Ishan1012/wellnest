@@ -12,6 +12,10 @@ export class AppointmentRepository {
         return await Appointment.findOne({ id }).populate('doctor').exec() as PopulatedAppointment | null;
     }
 
+    async findByObjectId(objectId: Types.ObjectId): Promise<PopulatedAppointment | null> {
+        return await Appointment.findById(objectId).populate('doctor').exec() as PopulatedAppointment | null;
+    }
+
     async findByAppointmentId(id: string): Promise<PopulatedAppointment | null> {
         return await Appointment.findOne({ id }).populate('doctor').exec() as PopulatedAppointment | null;
     }
@@ -33,6 +37,15 @@ export class AppointmentRepository {
         const record = await Appointment.findOne({ id }).exec();
         if (record) {
             record.status = newStatus;
+            return await record.save();
+        }
+        return null;
+    }
+
+    async setPaymentStatus(id: string, newPaymentStatus: string): Promise<IAppointment | null> {
+        const record = await Appointment.findOne({ id }).exec();
+        if (record) {
+            record.paymentStatus = newPaymentStatus;
             return await record.save();
         }
         return null;

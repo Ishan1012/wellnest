@@ -11,6 +11,7 @@ import patientRoutes from "./routes/PatientRoutes";
 import adminRoutes from "./routes/AdminRoutes";
 import summaryRoutes from "./routes/SummaryRoutes";
 import calendarRoutes from "./routes/CalendarRoutes";
+import transactionRoutes from "./routes/TransactionRoutes";
 
 dotenv.config();
 
@@ -48,5 +49,6 @@ app.use("/api/v1/feedback", feedbackRoutes);
 app.use("/api/v1/admin", adminRoutes);
 app.use("/api/v1/summary", summaryRoutes);
 app.use("/api/v1/calendar", calendarRoutes);
+app.use("/api/v1/transaction", transactionRoutes);
 
 export default app;

@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { bookAppointmentApi, getDoctorsApi } from '@/apis/apis';
+import PaymentPage from './PaymentPage';
 
 interface Step1Props {
     onSelect: (field: keyof Omit<AppointmentDetails, 'patientInfo'>, value: any) => void;
@@ -42,6 +43,7 @@ const AppointmentPage = (): JSX.Element => {
     const auth = useAuth();
     const { logout, userSession } = auth;
     const [loading, setLoading] = useState(false);
+    const [bookedAppointmentId, setBookedAppointmentId] = useState<string>('');
 
     const [appointmentDetails, setAppointmentDetails] = useState<Omit<AppointmentDetails, 'id'>>({
         type: '',
@@ -80,11 +82,13 @@ const AppointmentPage = (): JSX.Element => {
         try {
             const response = await bookAppointmentApi(appointmentDetails);
 
-            if (response) {
-                toast.success("Appointment Booked successfully!");
+            if (response && response.data?.success) {
+                const apptId = response.data.appointment.id;
+                setBookedAppointmentId(apptId);
+                toast.success("Details saved! Proceeding to secure payment.");
                 nextStep();
             } else {
-                toast.error("Failed to register. Please try again.");
+                toast.error("Failed to submit details. Please try again.");
             }
         } catch (error) {
             const errorMessage = String(error);
@@ -121,7 +125,8 @@ const AppointmentPage = (): JSX.Element => {
                     {step === 1 && <Step1_AppointmentType onSelect={handleSelect} nextStep={nextStep} />}
                     {step === 2 && <Step2_ChooseDoctor onSelect={handleSelect} details={appointmentDetails} nextStep={nextStep} prevStep={prevStep} />}
                     {step === 3 && <Step3_PatientDetails onChange={handlePatientInfoChange} details={appointmentDetails.patientInfo} handleSubmit={handleSubmit} loading={loading} prevStep={prevStep} />}
-                    {step === 4 && <Step4_Confirmation details={appointmentDetails} />}
+                    {step === 4 && <PaymentPage details={appointmentDetails} appointmentId={bookedAppointmentId} onPaymentSuccess={nextStep} prevStep={prevStep} />}
+                    {step === 5 && <Step4_Confirmation details={appointmentDetails} />}
                 </div>
             </main>
         </div>

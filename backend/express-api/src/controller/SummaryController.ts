@@ -19,10 +19,14 @@ export const getSummary = async (req: Request, res: Response) => {
             return res.status(404).json({ success: false, message: "Appointment not found!" });
         }
 
-        const summary = await summaryService.getSummaryByAppointmentObjectId(appointment._id as Types.ObjectId);
+        let summary = await summaryService.getSummaryByAppointmentObjectId(appointment._id as Types.ObjectId);
+
+        if (!summary || !summary.preVisitSummary) {
+            summary = await summaryService.createPreVisitSummary(appointment._id as Types.ObjectId);
+        }
 
         if (!summary) {
-            return res.status(404).json({ success: false, message: "No summary found for this appointment." });
+            return res.status(404).json({ success: false, message: "No summary found or could be generated for this appointment." });
         }
 
         return res.status(200).json({ success: true, summary });
