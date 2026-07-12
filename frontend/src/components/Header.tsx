@@ -66,8 +66,8 @@ const Header = (): JSX.Element => {
               <Link href="/consult" className="text-gray-600 hover:text-emerald-600 px-2 py-1.5 text-sm font-medium transition-colors duration-200">
                 Smart Consult
               </Link>
-              <Link href="/services" className="text-gray-600 hover:text-emerald-600 px-2 py-1.5 text-sm font-medium transition-colors duration-200">
-                Services
+              <Link href="/locate" className="text-gray-600 hover:text-emerald-600 px-2 py-1.5 text-sm font-medium transition-colors duration-200">
+                Locate Doctor
               </Link>
               <Link href="/blog" className="text-gray-600 hover:text-emerald-600 px-2 py-1.5 text-sm font-medium transition-colors duration-200">
                 Blog
@@ -130,8 +130,8 @@ const Header = (): JSX.Element => {
             <Link href="/consult" className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 transition-colors duration-200">
                 Smart Consult
               </Link>
-            <Link href="/services" className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 transition-colors duration-200">
-              Services
+            <Link href="/locate" className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 transition-colors duration-200">
+              Locate Doctor
             </Link>
             <Link href="/blog" className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 transition-colors duration-200">
               Blog
