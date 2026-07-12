@@ -268,21 +268,15 @@ function DoctorsContent() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Specialty</label>
-                  <select
+                  <input
+                    type="text"
                     name="specialty"
                     required
                     value={formData.specialty}
                     onChange={handleInputChange}
+                    placeholder="e.g. Cardiologist"
                     className="w-full bg-white border border-slate-200 rounded-lg py-2.5 px-3.5 text-slate-850 text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-emerald-600 text-sm shadow-sm"
-                  >
-                    <option value="">Select specialty</option>
-                    <option value="Cardiologist">Cardiologist</option>
-                    <option value="Dermatologist">Dermatologist</option>
-                    <option value="Neurologist">Neurologist</option>
-                    <option value="Pediatrician">Pediatrician</option>
-                    <option value="General Physician">General Physician</option>
-                    <option value="Gastroenterologist">Gastroenterologist</option>
-                  </select>
+                  />
                 </div>
                 <div>
                   <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Experience (years)</label>
