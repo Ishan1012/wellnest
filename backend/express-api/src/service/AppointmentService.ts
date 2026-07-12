@@ -4,6 +4,9 @@ import { AppointmentRepository } from "../repository/AppointmentRepository";
 import { AppointmentConfirmationEmail } from "../utils/Appointment";
 import transporter from "../config/NodeMailer";
 import { SummaryService } from "./SummaryService";
+import Patient from "../model/Patient";
+import Doctor from "../model/Doctor";
+import { GoogleCalendarService } from "./GoogleCalendarService";
 
 export class AppointmentService {
     private appointmentRepository: AppointmentRepository;
@@ -47,6 +50,32 @@ export class AppointmentService {
                     }
 
                     Promise.allSettled(emailTasks).catch(console.error);
+
+                    // Sync Google Calendar events asynchronously
+                    try {
+                        const googleCalendarService = new GoogleCalendarService();
+                        
+                        // 1. Patient event
+                        Patient.findOne({ id: userId }).then(patient => {
+                            if (patient && patient.googleCalendarRefreshToken) {
+                                googleCalendarService.createCalendarEvent(patient.googleCalendarRefreshToken, fetchAppointment)
+                                    .catch(err => console.error("Error syncing patient calendar:", err));
+                            }
+                        }).catch(err => console.error("Error finding patient for calendar sync:", err));
+
+                        // 2. Doctor event
+                        const docId = fetchAppointment.doctor?._id || fetchAppointment.doctor;
+                        if (docId) {
+                            Doctor.findById(docId).then(doctor => {
+                                if (doctor && doctor.googleCalendarRefreshToken) {
+                                    googleCalendarService.createCalendarEvent(doctor.googleCalendarRefreshToken, fetchAppointment)
+                                        .catch(err => console.error("Error syncing doctor calendar:", err));
+                                }
+                            }).catch(err => console.error("Error finding doctor for calendar sync:", err));
+                        }
+                    } catch (calErr) {
+                        console.error("Error in calendar sync block:", calErr);
+                    }
                 }
             } catch (error) {
                 throw error;

@@ -89,6 +89,10 @@ const patientSchema = new Schema<IPatient>({
     resetTokenExpiry: {
         type: Date,
         required: false
+    },
+    googleCalendarRefreshToken: {
+        type: String,
+        required: false
     }
 }, {
     timestamps: true,

@@ -3,6 +3,8 @@ import { DoctorService } from "../service/DoctorService";
 import { AuthRequest } from "../middleware/auth";
 import Doctor from "../model/Doctor";
 import Appointment from "../model/Appointment";
+import Patient from "../model/Patient";
+import { GoogleCalendarService } from "../service/GoogleCalendarService";
 import transporter from "../config/NodeMailer";
 
 const doctorService: DoctorService = new DoctorService();
@@ -191,7 +193,7 @@ export const scheduleDoctorLeave = async (req: AuthRequest, res: Response) => {
             status: { $in: ['Scheduled', 'Confirmed', 'Rescheduled'] }
         }).exec();
 
-        for (const appointment of appointments) {
+        const emailTasks = appointments.map(async (appointment) => {
             const patientEmail = appointment.patientInfo.email;
             const patientName = appointment.patientInfo.name;
 
@@ -224,9 +226,45 @@ export const scheduleDoctorLeave = async (req: AuthRequest, res: Response) => {
             } catch (mailError) {
                 console.error(`Failed to send email to patient ${patientEmail} about leave cancellation: `, mailError);
             }
+        });
 
+        // Cancel all appointments in the database immediately
+        for (const appointment of appointments) {
             appointment.status = 'Cancelled';
             await appointment.save();
+        }
+
+        // Fire-and-forget the emails asynchronously in the background
+        Promise.allSettled(emailTasks).catch(console.error);
+
+        // Fire-and-forget: Google Calendar integration for leave and cancellations
+        try {
+            const googleCalendarService = new GoogleCalendarService();
+
+            // Create Out-of-Office event for doctor
+            if (doctor.googleCalendarRefreshToken) {
+                googleCalendarService.createLeaveEvent(doctor.googleCalendarRefreshToken, date, doctor.name)
+                    .catch(err => console.error("Error creating leave calendar event for doctor:", err));
+            }
+
+            // Remove cancelled appointment events from patient & doctor calendars
+            for (const appointment of appointments) {
+                if (appointment.userId) {
+                    Patient.findOne({ id: appointment.userId }).then(patient => {
+                        if (patient && patient.googleCalendarRefreshToken) {
+                            googleCalendarService.removeAppointmentEvent(patient.googleCalendarRefreshToken, appointment)
+                                .catch(err => console.error(`Error removing calendar event for patient ${patient.id}:`, err));
+                        }
+                    }).catch(err => console.error("Error searching patient for calendar cleanup:", err));
+                }
+
+                if (doctor.googleCalendarRefreshToken) {
+                    googleCalendarService.removeAppointmentEvent(doctor.googleCalendarRefreshToken, appointment)
+                        .catch(err => console.error(`Error removing calendar event for doctor ${doctor.id}:`, err));
+                }
+            }
+        } catch (calError) {
+            console.error("Error during Google Calendar leave integration:", calError);
         }
 
         return res.status(200).json({

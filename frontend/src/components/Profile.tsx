@@ -17,7 +17,7 @@ import { AppointmentDetails, Doctor, Patient } from '@/types/type';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { scheduleDoctorLeaveApi } from '@/apis/apis';
+import { scheduleDoctorLeaveApi, getCalendarConnectUrlApi, disconnectCalendarApi } from '@/apis/apis';
 
 type UserProfile = Patient | Doctor;
 
@@ -309,6 +309,94 @@ const MedicalRecords: FC<MedicalRecordsProps> = ({ isPatient, records }) => (
 	</div>
 );
 
+interface SyncCalendarCardProps {
+	user: Patient | Doctor;
+	onUpdate: () => void;
+}
+
+const SyncCalendarCard: FC<SyncCalendarCardProps> = ({ user, onUpdate }) => {
+	const [connecting, setConnecting] = useState(false);
+	const [disconnecting, setDisconnecting] = useState(false);
+
+	const isConnected = !!user.googleCalendarRefreshToken;
+
+	const handleConnect = async () => {
+		setConnecting(true);
+		try {
+			const res = await getCalendarConnectUrlApi();
+			if (res.data.success && res.data.url) {
+				window.location.href = res.data.url;
+			} else {
+				toast.error("Failed to generate Google authorization link.");
+			}
+		} catch (err: any) {
+			toast.error(err.response?.data?.message || err.message || "Failed to initiate sync.");
+		} finally {
+			setConnecting(false);
+		}
+	};
+
+	const handleDisconnect = async () => {
+		setDisconnecting(true);
+		try {
+			const res = await disconnectCalendarApi();
+			if (res.data.success) {
+				toast.success("Google Calendar disconnected successfully!");
+				onUpdate();
+			} else {
+				toast.error(res.data.message || "Failed to disconnect calendar.");
+			}
+		} catch (err: any) {
+			toast.error(err.response?.data?.message || err.message || "Error disconnecting calendar.");
+		} finally {
+			setDisconnecting(false);
+		}
+	};
+
+	return (
+		<div className="bg-white rounded-2xl shadow-xl p-8 text-left space-y-4">
+			<h2 className="text-xl font-bold text-slate-900">Sync Calendar</h2>
+			<p className="text-slate-500 text-xs leading-relaxed">
+				Connect your Google Calendar to synchronize scheduled appointments and get alerts directly on your devices.
+			</p>
+			{isConnected ? (
+				<div className="space-y-3">
+					<div className="flex items-center gap-2 text-emerald-600 bg-emerald-50 px-3 py-2 rounded-lg border border-emerald-100">
+						<span className="text-sm font-semibold flex items-center gap-1.5">
+							<svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+								<path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+							</svg>
+							Connected
+						</span>
+					</div>
+					<button
+						onClick={handleDisconnect}
+						disabled={disconnecting}
+						className="w-full flex items-center justify-center font-semibold bg-rose-50 text-rose-600 hover:bg-rose-100 px-4 py-2.5 rounded-lg text-sm transition cursor-pointer disabled:opacity-50"
+					>
+						{disconnecting ? "Disconnecting..." : "Disconnect Calendar"}
+					</button>
+				</div>
+			) : (
+				<button
+					onClick={handleConnect}
+					disabled={connecting}
+					className="w-full flex items-center justify-center font-bold bg-[#0f172a] text-white hover:bg-slate-800 px-4 py-2.5 rounded-lg text-sm transition cursor-pointer disabled:opacity-50 gap-2"
+				>
+					{connecting ? "Connecting..." : (
+						<>
+							Connect Google Calendar
+							<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
+								<path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+							</svg>
+						</>
+					)}
+				</button>
+			)}
+		</div>
+	);
+};
+
 const Profile: FC = () => {
 	const [user, setUser] = useState<UserProfile | null>(null);
 	const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -351,6 +439,21 @@ const Profile: FC = () => {
 			router.replace('/dashboard');
 			return;
 		}
+
+		// Handle Google Calendar OAuth redirect messages
+		const searchParams = new URLSearchParams(window.location.search);
+		const calendarStatus = searchParams.get("calendar");
+		if (calendarStatus === "connected") {
+			toast.success("Google Calendar connected successfully!");
+			const newUrl = window.location.pathname;
+			window.history.replaceState({}, '', newUrl);
+		} else if (calendarStatus === "error") {
+			const msg = searchParams.get("message") || "Authorization failed";
+			toast.error(`Failed to connect calendar: ${msg}`);
+			const newUrl = window.location.pathname;
+			window.history.replaceState({}, '', newUrl);
+		}
+
 		const fetchUserData = async () => {
 			try {
 				const data = await getUser();
@@ -372,7 +475,7 @@ const Profile: FC = () => {
 		};
 
 		fetchUserData();
-	}, [getUser, logout, router]);
+	}, [getUser, logout, router, isAdmin]);
 
 	const handleLogout = () => {
 		logout();
@@ -401,6 +504,10 @@ const Profile: FC = () => {
 				<div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 					<aside className="lg:col-span-1 space-y-8">
 						<ProfileCard user={user} />
+						<SyncCalendarCard user={user} onUpdate={async () => {
+							const data = await getUser();
+							setUser(data);
+						}} />
 						<button onClick={handleLogout} className="w-full flex items-center justify-center font-semibold bg-slate-200 text-slate-700 px-6 py-3 rounded-lg hover:bg-rose-500 hover:text-white transition-colors cursor-pointer">
 							<LogOut className="mr-2" size={20} /> Log Out
 						</button>

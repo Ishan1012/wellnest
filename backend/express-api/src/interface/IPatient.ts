@@ -21,6 +21,7 @@ export interface IPatient extends Document{
     resetTokenExpiry?: Date | undefined;
     createdAt: Date;
     updatedAt: Date;
+    googleCalendarRefreshToken?: string;
 }
 
 export interface PopulatedPatient extends Document {
@@ -43,4 +44,5 @@ export interface PopulatedPatient extends Document {
     resetTokenExpiry?: Date | undefined;
     createdAt: Date;
     updatedAt: Date;
+    googleCalendarRefreshToken?: string;
 }

@@ -238,7 +238,10 @@ export class AuthService {
     }
 
     async signInByGoogle(code: string, role: string): Promise<AuthResponse | null> {
-        const googleResponse = await oauth2Client.getToken(code);
+        const googleResponse = await oauth2Client.getToken({
+            code,
+            redirect_uri: "postmessage"
+        });
         const userResponse = await axios.get(`https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${googleResponse.tokens.access_token}`);
 
         const { email, name, verified_email, picture } = userResponse.data;

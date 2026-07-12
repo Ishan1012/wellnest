@@ -78,3 +78,7 @@ export const getSummaryApi = (appointmentId: string) => api.get(`/summary/${appo
 export const submitDoctorNotesApi = (appointmentId: string, data: { doctorNotes: string; prescription: string; reportUrl?: string }) => api.post(`/summary/${appointmentId}/doctor-notes`, data);
 
 export const getDoctorAppointmentsApi = () => api.get(`/appointment/doctor/me`);
+
+export const getCalendarConnectUrlApi = () => api.get('/calendar/connect');
+export const getCalendarStatusApi = () => api.get('/calendar/status');
+export const disconnectCalendarApi = () => api.post('/calendar/disconnect');

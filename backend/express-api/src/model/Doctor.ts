@@ -147,6 +147,10 @@ const doctorSchema = new Schema<IDoctor>({
     resetTokenExpiry: {
         type: Date,
         required: false
+    },
+    googleCalendarRefreshToken: {
+        type: String,
+        required: false
     }
 }, {
     timestamps: true,

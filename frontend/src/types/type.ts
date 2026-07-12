@@ -47,6 +47,7 @@ export interface Doctor {
     healthTips: boolean;
     promotionalUpdates: boolean;
   };
+  googleCalendarRefreshToken?: string;
 }
 
 export interface PatientInfo {
@@ -107,6 +108,7 @@ export interface Patient {
   medicalRecords: AppointmentDetails[];
   createdAt: Date;
   updatedAt: Date;
+  googleCalendarRefreshToken?: string;
 }
 
 export type PatientFormData = Omit<Patient, 'id' | 'name' | 'email' | 'password' | 'profileUrl' | 'isOAuth' | 'status' | 'isVerified' | 'verificationToken' | 'upcomingAppointments' | 'medicalRecords' | 'createdAt' | 'updatedAt'> & {

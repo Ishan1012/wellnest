@@ -31,6 +31,7 @@ export interface IDoctor extends Document {
     };
     resetToken?: string | undefined;
     resetTokenExpiry?: Date | undefined;
+    googleCalendarRefreshToken?: string;
 }
 
 export interface PopulatedDoctor extends Document {
@@ -63,4 +64,5 @@ export interface PopulatedDoctor extends Document {
     };
     resetToken?: string | undefined;
     resetTokenExpiry?: Date | undefined;
+    googleCalendarRefreshToken?: string;
 }
