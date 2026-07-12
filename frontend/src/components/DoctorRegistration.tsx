@@ -207,23 +207,19 @@ const DoctorRegistration = (): JSX.Element => {
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
                         <div className="space-y-6">
-                            {/* Medical Specialty Select */}
                             <div>
                                 <label htmlFor="specialty" className="block text-sm font-semibold text-emerald-900 mb-2">Medical Specialty</label>
-                                <select
+                                <input
+                                    type="text"
                                     name="specialty"
                                     id="specialty"
                                     value={formData.specialty}
                                     onChange={handleInputChange}
                                     className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-gray-900 bg-gray-50 
                                         focus:outline-none focus:border-emerald-500 focus:bg-white focus:shadow-lg focus:shadow-emerald-500/10"
+                                    placeholder="e.g. Cardiologist"
                                     required
-                                >
-                                    <option value="">Select your specialty</option>
-                                    {specialties.map(specialty => (
-                                        <option key={specialty} value={specialty}>{specialty}</option>
-                                    ))}
-                                </select>
+                                />
                             </div>
 
                             {/* Qualifications Input */}
