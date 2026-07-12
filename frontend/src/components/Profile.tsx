@@ -17,6 +17,7 @@ import { AppointmentDetails, Doctor, Patient } from '@/types/type';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import { scheduleDoctorLeaveApi } from '@/apis/apis';
 
 type UserProfile = Patient | Doctor;
 
@@ -181,30 +182,30 @@ interface AppointmentCardProps {
 }
 const AppointmentCard: FC<AppointmentCardProps> = ({ appointment, isPatientView }) => {
 	const router = useRouter();
-	const openAppointment = useCallback(() => {
-		router.push(`/appointment/${appointment.id}`);
-	}, [appointment.id, router]);
 
-	
-	console.log(appointment);
+	const openAppointment = useCallback(() => {
+		if (isPatientView) {
+			router.push(`/appointment/${appointment.id}`);
+		} else {
+			router.push(`/doctor-dashboard?apptId=${appointment.id}`);
+		}
+	}, [appointment.id, isPatientView, router]);
+
 	const partner = isPatientView ? appointment.doctor : appointment.patientInfo;
-	console.log(partner);
 	const partnerName = partner?.name || "N/A";
 	let detailText = '';
 	let roleText = '';
 
 	if (partner && 'specialty' in partner) {
-		// partner is a Doctor
 		detailText = partner.specialty || 'N/A';
 		roleText = `with Dr. ${partnerName}`;
 	} else {
-		// partner is a Patient
 		detailText = `Age: ${partner?.age || 'N/A'}, Phone: ${partner?.phone || 'N/A'}`;
 		roleText = `for ${partnerName}`;
 	}
 
 	return (
-		<div onClick={openAppointment} className="bg-slate-50 p-4 rounded-lg flex items-center justify-between hover:bg-emerald-50 transition-colors cursor-pointer">
+		<div onClick={openAppointment} className="bg-slate-50 p-4 rounded-lg flex items-center justify-between hover:bg-emerald-50 transition-colors cursor-pointer border border-slate-100 hover:border-emerald-250">
 			<div className="flex items-center">
 				<div className="bg-emerald-100 text-emerald-700 p-3 rounded-lg">
 					<Calendar size={24} />
@@ -212,13 +213,62 @@ const AppointmentCard: FC<AppointmentCardProps> = ({ appointment, isPatientView 
 				<div className="ml-4">
 					<p className="font-bold text-slate-800">{roleText}</p>
 					<p className="text-sm text-slate-600">{detailText}</p>
-					<p className="text-sm text-slate-600 font-semibold">{new Date(appointment.date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} at {appointment.time}</p>
+					<p className="text-xs text-slate-500 font-semibold mt-0.5">{new Date(appointment.date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} at {appointment.time}</p>
 				</div>
 			</div>
 			<ChevronRight className="text-slate-400" />
 		</div>
 	);
+};
+
+interface RecordCardProps {
+	isPatient: boolean;
+	record: AppointmentDetails;
 }
+const RecordCard: FC<RecordCardProps> = ({ isPatient, record }) => {
+	const router = useRouter();
+
+	const handleCardClick = () => {
+		router.push(`/records/${record.id}`);
+	};
+
+	return (
+		<div onClick={handleCardClick} className="bg-slate-50 p-4 rounded-lg flex items-center justify-between hover:bg-emerald-50 transition-colors cursor-pointer border border-slate-100 hover:border-emerald-250">
+			{isPatient ? (
+				<div className="flex items-center">
+					<div className="bg-slate-200 text-slate-650 p-3 rounded-lg">
+						<FileText size={24} />
+					</div>
+					<div className="ml-4">
+						<p className="font-bold text-slate-800">{record.type}</p>
+						<p className="text-sm text-slate-600">with Dr. {record.doctor?.name} ({record.doctor?.specialty})</p>
+						<p className="text-xs text-slate-500 font-semibold mt-0.5">{new Date(record.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+					</div>
+				</div>
+			) : (
+				<div className="flex items-center">
+					<div className="bg-slate-200 text-slate-655 p-3 rounded-lg">
+						<FileText size={24} />
+					</div>
+					<div className="ml-4">
+						<p className="font-bold text-slate-800">{record.type}</p>
+						<p className="text-sm text-slate-600">with {record.patientInfo.name} (Age: {record.patientInfo.age})</p>
+						<p className="text-xs text-slate-500 font-semibold mt-0.5">{new Date(record.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+					</div>
+				</div>
+			)}
+			<div className="flex items-center gap-2">
+				{record.reportUrl && (
+					<a href={record.reportUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="flex items-center font-semibold text-emerald-700 hover:text-emerald-850 text-xs mr-2">
+						<Download size={16} className="mr-1.5" />
+						Report
+					</a>
+				)}
+				<ChevronRight className="text-slate-400" />
+			</div>
+		</div>
+	);
+};
 
 interface AppointmentsSectionProps {
 	appointments: AppointmentDetails[];
@@ -241,44 +291,6 @@ const AppointmentsSection: FC<AppointmentsSectionProps> = ({ appointments, isPat
 		</div>
 	);
 }
-
-interface RecordCardProps {
-	isPatient: boolean;
-	record: AppointmentDetails;
-}
-const RecordCard: FC<RecordCardProps> = ({ isPatient, record }) => (
-	<div className="bg-slate-50 p-4 rounded-lg flex items-center justify-between hover:bg-slate-100 transition-colors">
-		{isPatient ? (
-			<div className="flex items-center">
-				<div className="bg-slate-200 text-slate-600 p-3 rounded-lg">
-					<FileText size={24} />
-				</div>
-				<div className="ml-4">
-					<p className="font-bold text-slate-800">{record.type}</p>
-					<p className="text-sm text-slate-600">with Dr. {record.doctor?.name} ({record.doctor?.specialty})</p>
-					<p className="text-sm text-slate-600 font-semibold">{new Date(record.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
-				</div>
-			</div>
-		) : (
-			<div className="flex items-center">
-				<div className="bg-slate-200 text-slate-600 p-3 rounded-lg">
-					<FileText size={24} />
-				</div>
-				<div className="ml-4">
-					<p className="font-bold text-slate-800">{record.type}</p>
-					<p className="text-sm text-slate-600">with {record.patientInfo.name} of age ({record.patientInfo.age}).</p>
-					<p className="text-sm text-slate-600 font-semibold">{new Date(record.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
-				</div>
-			</div>
-		)}
-		{record.reportUrl && (
-			<a href={record.reportUrl} target="_blank" rel="noopener noreferrer" className="flex items-center font-semibold text-emerald-600 hover:text-emerald-800">
-				<Download size={18} className="mr-2" />
-				View Report
-			</a>
-		)}
-	</div>
-);
 
 interface MedicalRecordsProps {
 	isPatient: boolean;
@@ -305,6 +317,34 @@ const Profile: FC = () => {
 	const { logout, getUser, isAdmin } = useAuth();
 
 	const isPatient = user?.id.startsWith('PAT') ?? false;
+
+	const [leaveDate, setLeaveDate] = useState<string>('');
+	const [submittingLeave, setSubmittingLeave] = useState<boolean>(false);
+
+	const handleScheduleLeave = async (e: React.FormEvent) => {
+		e.preventDefault();
+		if (!leaveDate) {
+			toast.error("Please select a leave date!");
+			return;
+		}
+		setSubmittingLeave(true);
+		try {
+			const response = await scheduleDoctorLeaveApi(leaveDate);
+			if (response.data.success) {
+				toast.success(response.data.message || `Leave scheduled successfully for ${leaveDate}!`);
+				setLeaveDate('');
+				// Reload user details (queue)
+				const data = await getUser();
+				setUser(data);
+			} else {
+				toast.error(response.data.message || "Failed to schedule leave.");
+			}
+		} catch (error: any) {
+			toast.error(error.response?.data?.message || error.message || "An error occurred.");
+		} finally {
+			setSubmittingLeave(false);
+		}
+	};
 
 	useEffect(() => {
 		if (isAdmin) {
@@ -385,6 +425,34 @@ const Profile: FC = () => {
 								id="queue"
 								emptyMessage="You have no patients scheduled for today."
 							/>
+						)}
+						{!isPatient && (
+							<div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+								<h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+									<Calendar className="text-emerald-700" size={22} />
+									Schedule Leave Day
+								</h3>
+								<p className="text-slate-500 text-sm">
+									Schedule a leave day. Selecting a date will cancel all appointments on that day and automatically email the affected patients.
+								</p>
+								<form onSubmit={handleScheduleLeave} className="flex flex-col sm:flex-row gap-3">
+									<input
+										type="date"
+										required
+										min={new Date().toISOString().split('T')[0]}
+										value={leaveDate}
+										onChange={(e) => setLeaveDate(e.target.value)}
+										className="flex-1 bg-white border border-slate-200 rounded-lg py-2.5 px-3.5 text-slate-850 text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-emerald-600 text-sm shadow-sm"
+									/>
+									<button
+										type="submit"
+										disabled={submittingLeave}
+										className="bg-emerald-700 hover:bg-emerald-800 text-white font-semibold py-2.5 px-6 rounded-lg text-sm transition cursor-pointer disabled:bg-emerald-800"
+									>
+										{submittingLeave ? 'Scheduling...' : 'Schedule Leave'}
+									</button>
+								</form>
+							</div>
 						)}
 						{isPatient && patientUser.medicalRecords && (
 							<MedicalRecords isPatient={isPatient} records={patientUser.medicalRecords} />

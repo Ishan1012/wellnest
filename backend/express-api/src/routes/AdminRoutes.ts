@@ -6,7 +6,8 @@ import {
     getAppointments,
     addDoctorByAdmin,
     updateDoctorStatus,
-    updatePatientStatus
+    updatePatientStatus,
+    updateDoctorSchedule
 } from "../controller/AdminController";
 import { verifyToken, requireAdmin } from "../middleware/authMiddleware";
 
@@ -23,5 +24,6 @@ router.get("/appointments", getAppointments);
 router.post("/doctor", addDoctorByAdmin);
 router.patch("/doctor/:id/status", updateDoctorStatus);
 router.patch("/patient/:id/status", updatePatientStatus);
+router.patch("/doctor/:id/schedule", updateDoctorSchedule);
 
 export default router;

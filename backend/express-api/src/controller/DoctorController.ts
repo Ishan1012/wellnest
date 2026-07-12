@@ -1,6 +1,9 @@
 import { Request, Response } from "express";
 import { DoctorService } from "../service/DoctorService";
 import { AuthRequest } from "../middleware/auth";
+import Doctor from "../model/Doctor";
+import Appointment from "../model/Appointment";
+import transporter from "../config/NodeMailer";
 
 const doctorService: DoctorService = new DoctorService();
 
@@ -167,3 +170,75 @@ export const getAllRegisteredDoctors = async (req: Request, res: Response) => {
         }
     }
 }
+
+export const scheduleDoctorLeave = async (req: AuthRequest, res: Response) => {
+    try {
+        const { date } = req.body;
+        const doctorId = req.user?.userId;
+
+        if (!date) {
+            return res.status(400).json({ success: false, message: "Leave date is required!" });
+        }
+
+        const doctor = await Doctor.findOne({ id: doctorId });
+        if (!doctor) {
+            return res.status(403).json({ success: false, message: "Only doctors can schedule leaves!" });
+        }
+
+        const appointments = await Appointment.find({
+            doctor: doctor._id,
+            date: date,
+            status: { $in: ['Scheduled', 'Confirmed', 'Rescheduled'] }
+        }).exec();
+
+        for (const appointment of appointments) {
+            const patientEmail = appointment.patientInfo.email;
+            const patientName = appointment.patientInfo.name;
+
+            try {
+                await transporter.sendMail({
+                    from: `no reply <${process.env.EMAIL_ID}>`,
+                    to: patientEmail,
+                    subject: `Appointment Cancelled - Dr. ${doctor.name} on Leave`,
+                    html: `
+                        <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                            <tr>
+                                <td align="center">
+                                    <table width="500" cellpadding="0" cellspacing="0" border="0" style="background-color: #fff; font-family: system-ui; border-radius: 10px; padding: 20px; border: 1px solid #e5e7eb;">
+                                        <tr>
+                                            <td>
+                                                <h2 style="color: #b91c1c; margin-top: 0;">Important Update Regarding Your Appointment</h2>
+                                                <p>Dear ${patientName},</p>
+                                                <p>We regret to inform you that your scheduled appointment (ID: <strong>${appointment.id}</strong>) with <strong>Dr. ${doctor.name}</strong> on <strong>${date}</strong> at <strong>${appointment.time}</strong> has been cancelled because the doctor will be on leave on that day.</p>
+                                                <p>We apologize for any inconvenience caused. You can log in to your portal to reschedule the appointment or book another slot.</p>
+                                                <br>
+                                                <p>Best regards,<br>WellNest Team</p>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+                    `
+                });
+            } catch (mailError) {
+                console.error(`Failed to send email to patient ${patientEmail} about leave cancellation: `, mailError);
+            }
+
+            appointment.status = 'Cancelled';
+            await appointment.save();
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: `Leave scheduled successfully for ${date}. Notified ${appointments.length} patients.`,
+            notifiedPatientsCount: appointments.length
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error",
+            error: error instanceof Error ? error.message : String(error)
+        });
+    }
+};

@@ -62,11 +62,24 @@ export interface PatientInfo {
 export interface AppointmentDetails {
   id: string;
   type: string;
+  status?: string;
   doctor: Doctor | null;
   date: string;
   time: string;
   patientInfo: PatientInfo;
   reportUrl?: string;
+}
+
+export interface Summary {
+  _id: string;
+  appointmentId: string;
+  preVisitSummary?: string;
+  urgencyLevel?: 'low' | 'medium' | 'high' | 'critical';
+  doctorNotes?: string;
+  prescription?: string;
+  postVisitSummary?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface AppointmentType {

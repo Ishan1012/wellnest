@@ -1,12 +1,17 @@
 import { Request, Response } from "express";
 import { AppointmentService } from "../service/AppointmentService";
 import { AuthRequest } from "../middleware/auth";
+import Doctor from "../model/Doctor";
+import Appointment from "../model/Appointment";
 
 const appointmentService: AppointmentService = new AppointmentService();
 
 export const createAppointment = async (req: AuthRequest, res: Response) => {
     try {
-        const userId = req.user?.userId as string;
+        console.log("DEBUG [createAppointment] req.user is:", req.user);
+        console.log("DEBUG [createAppointment] req.body is:", req.body);
+        const userId = req.user?.userId || (req.user as any)?.id || (req.user as any)?.userId;
+        console.log("DEBUG [createAppointment] resolved userId:", userId);
         const appointment = await appointmentService.createAppointment(userId, req.body);
 
         if(!appointment) {
@@ -175,3 +180,27 @@ export const deleteAppointment = async (req: Request, res: Response) => {
         }
     }
 }
+
+export const getMyAppointmentsForDoctor = async (req: AuthRequest, res: Response) => {
+    try {
+        const doctorId = req.user?.userId;
+
+        const doctor = await Doctor.findOne({ id: doctorId }).exec();
+        if (!doctor) {
+            return res.status(404).json({ success: false, message: "Doctor not found!" });
+        }
+
+        const appointments = await Appointment.find({ doctor: doctor._id })
+            .populate('doctor')
+            .sort({ createdAt: -1 })
+            .exec();
+
+        return res.status(200).json({ success: true, appointments });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error",
+            error: error instanceof Error ? error.message : String(error)
+        });
+    }
+};

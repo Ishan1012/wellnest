@@ -82,10 +82,7 @@ const appointmentSchema = new Schema<IAppointment>({
         required: true
     },
     reportUrl: {
-        type: String,
-        required: function (this: IAppointment) {
-            return this.status === "Completed";
-        }
+        type: String
     },
     createdAt: {
         type: Date,
@@ -106,43 +103,50 @@ appointmentSchema.post<HydratedDocument<IAppointment>>('save', async function (a
             const patient = await Patient.findOne({ id: appointment.userId });
 
             if (patient) {
-                const validAppointments = await Appointment.find(
-                    { _id: { $in: patient.upcomingAppointments } },
-                    { _id: 1 }
-                ).lean();
-
-                const validIds = validAppointments.map(a => a._id.toString());
-
-                // keep only ones still valid
-                patient.upcomingAppointments = patient.upcomingAppointments.filter(id =>
-                    validIds.includes(id.toString())
-                );
-
-                if (!patient.upcomingAppointments.some(id => id.equals(appointmentId))) {
-                    patient.upcomingAppointments.push(appointmentId);
+                if (appointment.status === 'Completed') {
+                    // Remove from upcomingAppointments
+                    patient.upcomingAppointments = patient.upcomingAppointments.filter(
+                        id => id.toString() !== appointmentId.toString()
+                    );
+                    // Add to medicalRecords
+                    if (!patient.medicalRecords.some(id => id.equals(appointmentId))) {
+                        patient.medicalRecords.push(appointmentId);
+                    }
+                } else {
+                    // Add to upcomingAppointments
+                    if (!patient.upcomingAppointments.some(id => id.equals(appointmentId))) {
+                        patient.upcomingAppointments.push(appointmentId);
+                    }
+                    // Remove from medicalRecords
+                    patient.medicalRecords = patient.medicalRecords.filter(
+                        id => id.toString() !== appointmentId.toString()
+                    );
                 }
-
                 await patient.save();
             }
         }
 
         const doctor = await Doctor.findById(appointment.doctor);
         if (doctor) {
-            const validAppointments = await Appointment.find(
-                { _id: { $in: doctor.upcomingAppointments } },
-                { _id: 1 }
-            ).lean();
-
-            const validIds = validAppointments.map(a => a._id.toString());
-
-            doctor.upcomingAppointments = doctor.upcomingAppointments.filter(id =>
-                validIds.includes(id.toString())
-            );
-
-            if (!doctor.upcomingAppointments.some(id => id.equals(appointmentId))) {
-                doctor.upcomingAppointments.push(appointmentId);
+            if (appointment.status === 'Completed') {
+                // Remove from upcomingAppointments
+                doctor.upcomingAppointments = doctor.upcomingAppointments.filter(
+                    id => id.toString() !== appointmentId.toString()
+                );
+                // Add to medicalRecords
+                if (!doctor.medicalRecords.some(id => id.equals(appointmentId))) {
+                    doctor.medicalRecords.push(appointmentId);
+                }
+            } else {
+                // Add to upcomingAppointments
+                if (!doctor.upcomingAppointments.some(id => id.equals(appointmentId))) {
+                    doctor.upcomingAppointments.push(appointmentId);
+                }
+                // Remove from medicalRecords
+                doctor.medicalRecords = doctor.medicalRecords.filter(
+                    id => id.toString() !== appointmentId.toString()
+                );
             }
-
             await doctor.save();
         }
 
@@ -150,8 +154,7 @@ appointmentSchema.post<HydratedDocument<IAppointment>>('save', async function (a
     } catch (err: any) {
         next(err);
     }
-}
-);
+});
 
 const Appointment = model<IAppointment>('Appointments', appointmentSchema);
 

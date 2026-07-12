@@ -68,3 +68,13 @@ export const adminAddDoctor = (doctorDetails: any) => api.post('/admin/doctor', 
 export const updateDoctorStatus = (id: string, status: string) => api.patch(`/admin/doctor/${id}/status`, { status });
 
 export const updatePatientStatus = (id: string, status: string) => api.patch(`/admin/patient/${id}/status`, { status });
+
+export const updateDoctorScheduleApi = (id: string, availability: string[], timeSlots: string[]) => api.patch(`/admin/doctor/${id}/schedule`, { availability, timeSlots });
+
+export const scheduleDoctorLeaveApi = (date: string) => api.post('/doctor/leave', { date });
+
+export const getSummaryApi = (appointmentId: string) => api.get(`/summary/${appointmentId}`);
+
+export const submitDoctorNotesApi = (appointmentId: string, data: { doctorNotes: string; prescription: string; reportUrl?: string }) => api.post(`/summary/${appointmentId}/doctor-notes`, data);
+
+export const getDoctorAppointmentsApi = () => api.get(`/appointment/doctor/me`);

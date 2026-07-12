@@ -3,12 +3,15 @@ import { IAppointment, PopulatedAppointment } from "../interface/IAppointment";
 import { AppointmentRepository } from "../repository/AppointmentRepository";
 import { AppointmentConfirmationEmail } from "../utils/Appointment";
 import transporter from "../config/NodeMailer";
+import { SummaryService } from "./SummaryService";
 
 export class AppointmentService {
     private appointmentRepository: AppointmentRepository;
+    private summaryService: SummaryService;
 
     constructor() {
         this.appointmentRepository = new AppointmentRepository();
+        this.summaryService = new SummaryService();
     }
 
     async createAppointment(userId: string, appointment: IAppointment): Promise<IAppointment | null> {
@@ -48,6 +51,12 @@ export class AppointmentService {
             } catch (error) {
                 throw error;
             }
+
+            // Fire-and-forget: generate pre-visit AI summary asynchronously
+            const appointmentObjectId = newAppointment._id as Types.ObjectId;
+            this.summaryService.createPreVisitSummary(appointmentObjectId).catch(err => {
+                console.error("Failed to generate pre-visit summary:", err);
+            });
         }
 
         return newAppointment;

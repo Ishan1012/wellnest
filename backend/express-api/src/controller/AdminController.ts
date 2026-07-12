@@ -189,3 +189,27 @@ export const updatePatientStatus = async (req: Request, res: Response) => {
         });
     }
 };
+
+export const updateDoctorSchedule = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+        const { availability, timeSlots } = req.body;
+
+        if (!Array.isArray(availability) || !Array.isArray(timeSlots)) {
+            return res.status(400).json({ success: false, message: "Availability and timeSlots must be arrays of strings!" });
+        }
+
+        const doctor = await Doctor.findOneAndUpdate({ id }, { $set: { availability, timeSlots } }, { new: true }).exec();
+        if (!doctor) {
+            return res.status(404).json({ success: false, message: "Doctor not found!" });
+        }
+
+        return res.status(200).json({ success: true, message: "Doctor schedule updated successfully", doctor });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error",
+            error: error instanceof Error ? error.message : String(error)
+        });
+    }
+};

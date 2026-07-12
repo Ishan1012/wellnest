@@ -1,13 +1,15 @@
 'use client';
 import React, { useEffect, useState, Suspense } from 'react';
-import { getAdminDoctors, adminAddDoctor, updateDoctorStatus } from '@/apis/apis';
+import { getAdminDoctors, adminAddDoctor, updateDoctorStatus, updateDoctorScheduleApi } from '@/apis/apis';
 import { Doctor } from '@/types/type';
 import { 
   UserPlusIcon, 
   MagnifyingGlassIcon, 
   XMarkIcon,
   CheckIcon,
-  NoSymbolIcon
+  NoSymbolIcon,
+  CalendarDaysIcon,
+  ClockIcon
 } from '@heroicons/react/24/outline';
 import { useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
@@ -30,6 +32,58 @@ function DoctorsContent() {
     experience: ''
   });
   const [submitting, setSubmitting] = useState(false);
+
+  // Schedule Modal State
+  const [scheduleModalOpen, setScheduleModalOpen] = useState(false);
+  const [selectedDoctorForSchedule, setSelectedDoctorForSchedule] = useState<Doctor | null>(null);
+  const [selectedDays, setSelectedDays] = useState<string[]>([]);
+  const [selectedSlots, setSelectedSlots] = useState<string[]>([]);
+  const [savingSchedule, setSavingSchedule] = useState(false);
+
+  const availableDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  const availableTimeSlots = [
+    '09:00 AM', '09:30 AM', '10:00 AM', '10:30 AM', '11:00 AM', '11:30 AM',
+    '02:00 PM', '02:30 PM', '03:00 PM', '03:30 PM', '04:00 PM', '04:30 PM'
+  ];
+
+  const handleOpenScheduleModal = (doctor: Doctor) => {
+    setSelectedDoctorForSchedule(doctor);
+    setSelectedDays(doctor.availability || []);
+    setSelectedSlots(doctor.timeSlots || []);
+    setScheduleModalOpen(true);
+  };
+
+  const handleDayToggle = (day: string) => {
+    setSelectedDays(prev => 
+      prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day]
+    );
+  };
+
+  const handleSlotToggle = (slot: string) => {
+    setSelectedSlots(prev => 
+      prev.includes(slot) ? prev.filter(s => s !== slot) : [...prev, slot]
+    );
+  };
+
+  const handleSaveSchedule = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedDoctorForSchedule) return;
+    setSavingSchedule(true);
+    try {
+      const response = await updateDoctorScheduleApi(selectedDoctorForSchedule.id, selectedDays, selectedSlots);
+      if (response.data.success) {
+        toast.success("Doctor schedule updated successfully!");
+        setScheduleModalOpen(false);
+        fetchDoctors();
+      } else {
+        toast.error(response.data.message || "Failed to update schedule");
+      }
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || error.message || "An error occurred");
+    } finally {
+      setSavingSchedule(false);
+    }
+  };
 
   const fetchDoctors = async () => {
     try {
@@ -178,7 +232,13 @@ function DoctorsContent() {
                         {(doctor as any).status || 'active'}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-right">
+                    <td className="px-6 py-4 text-right flex justify-end gap-2">
+                      <button
+                        onClick={() => handleOpenScheduleModal(doctor)}
+                        className="inline-flex items-center gap-1.5 py-1.5 px-3 rounded-lg bg-emerald-50 hover:bg-emerald-700 hover:text-white border border-emerald-100 hover:border-transparent text-emerald-700 text-xs font-semibold cursor-pointer transition-all duration-200"
+                      >
+                        <CalendarDaysIcon className="h-4 w-4" /> Schedule
+                      </button>
                       {((doctor as any).status === 'active' || !(doctor as any).status) ? (
                         <button
                           onClick={() => handleStatusChange(doctor, 'blocked')}
@@ -306,6 +366,99 @@ function DoctorsContent() {
                   className="flex-1 cursor-pointer py-2.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-semibold transition disabled:bg-emerald-800 text-sm"
                 >
                   {submitting ? 'Adding...' : 'Add Doctor'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Manage Schedule Modal */}
+      {scheduleModalOpen && selectedDoctorForSchedule && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm px-4">
+          <div className="bg-white border border-slate-200 rounded-2xl w-full max-w-2xl shadow-xl overflow-hidden animate-zoomIn">
+            <div className="flex justify-between items-center px-6 py-4 border-b border-slate-200 bg-slate-50/30">
+              <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                <CalendarDaysIcon className="h-5 w-5 text-emerald-700" />
+                Manage Schedule: Dr. {selectedDoctorForSchedule.name}
+              </h2>
+              <button 
+                onClick={() => setScheduleModalOpen(false)}
+                className="text-slate-400 hover:text-slate-600 transition cursor-pointer"
+              >
+                <XMarkIcon className="h-5 w-5" />
+              </button>
+            </div>
+            
+            <form onSubmit={handleSaveSchedule} className="p-6 space-y-6">
+              {/* Availability Days */}
+              <div>
+                <h3 className="text-sm font-bold uppercase tracking-wider text-slate-550 text-slate-500 mb-3 flex items-center gap-1.5">
+                  <CalendarDaysIcon className="h-4.5 w-4.5 text-emerald-700" />
+                  Weekly Availability Days
+                </h3>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  {availableDays.map(day => {
+                    const isChecked = selectedDays.includes(day);
+                    return (
+                      <button
+                        key={day}
+                        type="button"
+                        onClick={() => handleDayToggle(day)}
+                        className={`py-2 px-3 rounded-lg text-xs font-semibold border transition-all cursor-pointer ${
+                          isChecked 
+                            ? 'bg-emerald-100 border-emerald-500 text-emerald-800' 
+                            : 'bg-white border-slate-200 text-slate-650 hover:bg-slate-50'
+                        }`}
+                      >
+                        {day}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Time Slots */}
+              <div>
+                <h3 className="text-sm font-bold uppercase tracking-wider text-slate-500 mb-3 flex items-center gap-1.5">
+                  <ClockIcon className="h-4.5 w-4.5 text-emerald-700" />
+                  Daily Time Slots
+                </h3>
+                <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                  {availableTimeSlots.map(slot => {
+                    const isChecked = selectedSlots.includes(slot);
+                    return (
+                      <button
+                        key={slot}
+                        type="button"
+                        onClick={() => handleSlotToggle(slot)}
+                        className={`py-2 px-3 rounded-lg text-xs font-semibold border transition-all cursor-pointer ${
+                          isChecked 
+                            ? 'bg-emerald-100 border-emerald-500 text-emerald-800' 
+                            : 'bg-white border-slate-200 text-slate-650 hover:bg-slate-50'
+                        }`}
+                      >
+                        {slot}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="flex gap-4 pt-4 border-t border-slate-100 bg-slate-50/20">
+                <button
+                  type="button"
+                  onClick={() => setScheduleModalOpen(false)}
+                  className="flex-1 cursor-pointer py-2.5 rounded-lg border border-slate-200 text-slate-650 text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition text-sm font-semibold"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={savingSchedule}
+                  className="flex-1 cursor-pointer py-2.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-semibold transition disabled:bg-emerald-800 text-sm"
+                >
+                  {savingSchedule ? 'Saving...' : 'Save Schedule'}
                 </button>
               </div>
             </form>

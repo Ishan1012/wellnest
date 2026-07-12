@@ -30,8 +30,12 @@ export class AppointmentRepository {
     }
 
     async setStatus(id: string, newStatus: string): Promise<IAppointment | null> {
-        const record = await Appointment.findOneAndUpdate({ id }, { $set: { status: newStatus, runValidators: true } }).exec();
-        return record;
+        const record = await Appointment.findOne({ id }).exec();
+        if (record) {
+            record.status = newStatus;
+            return await record.save();
+        }
+        return null;
     }
 
     async getAll(): Promise<IAppointment[]> {
