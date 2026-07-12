@@ -103,16 +103,28 @@ export const addDoctorByAdmin = async (req: Request, res: Response) => {
         await newDoctor.save();
 
         const verificationUrl = `${process.env.BASE_URL}/api/v1/auth/verify/${newDoctor.verificationToken}`;
-        await transporter.sendMail({
-            from: `no reply <${process.env.EMAIL_ID}>`,
-            to: newDoctor.email,
-            subject: 'Welcome to WellNest - Verify Your Doctor Account',
-            html: Message(verificationUrl),
-        });
+        
+        let emailSent = true;
+        let emailErrorMsg = "";
+
+        try {
+            await transporter.sendMail({
+                from: `no reply <${process.env.EMAIL_ID}>`,
+                to: newDoctor.email,
+                subject: 'Welcome to WellNest - Verify Your Doctor Account',
+                html: Message(verificationUrl),
+            });
+        } catch (emailError) {
+            emailSent = false;
+            emailErrorMsg = (emailError as Error).message;
+            console.error("Failed to send welcome email to doctor: ", emailError);
+        }
 
         return res.status(201).json({
             success: true,
-            message: "Doctor added successfully and verification email sent!",
+            message: emailSent 
+                ? "Doctor added successfully and verification email sent!"
+                : `Doctor added successfully, but failed to send verification email: ${emailErrorMsg}`,
             doctor: {
                 id: newDoctor.id,
                 name: newDoctor.name,

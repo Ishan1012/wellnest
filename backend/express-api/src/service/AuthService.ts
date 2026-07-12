@@ -65,12 +65,17 @@ export class AuthService {
         const token = this.jwtService.generateToken(createdPatient?.email, "Patient", createdPatient?.id);
 
         const verificationUrl = `${process.env.BASE_URL}/api/v1/auth/verify/${createdPatient.verificationToken}`;
-        await transporter.sendMail({
-            from: `no reply <${process.env.EMAIL_ID}>`,
-            to: createdPatient.email,
-            subject: 'Verify Your Email',
-            html: Message(verificationUrl),
-        });
+        
+        try {
+            await transporter.sendMail({
+                from: `no reply <${process.env.EMAIL_ID}>`,
+                to: createdPatient.email,
+                subject: 'Verify Your Email',
+                html: Message(verificationUrl),
+            });
+        } catch (emailError) {
+            console.error("Failed to send verification email to patient: ", emailError);
+        }
 
         return { token: token, email: createdPatient.email, name: createdPatient.name, verificationToken };
     }
