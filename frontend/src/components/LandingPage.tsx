@@ -74,7 +74,7 @@ const LandingPage = (): JSX.Element => {
 					console.log(data?.message);
 				}
 			} catch (error) {
-				console.error('Failed to wake up FastAPI:', error);
+				console.log('Failed to wake up FastAPI:', error);
 			}
 		}
 
