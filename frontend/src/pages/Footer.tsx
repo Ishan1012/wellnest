@@ -25,13 +25,8 @@ const Footer = (): JSX.Element => {
                 </Link>
               </li>
               <li>
-                <Link href="/services" className="text-sm text-gray-600 hover:text-emerald-600">
-                  Services
-                </Link>
-              </li>
-              <li>
-                <Link href="/doctor" className="text-sm text-gray-600 hover:text-emerald-600">
-                  Doctors
+                <Link href="/locate" className="text-sm text-gray-600 hover:text-emerald-600">
+                  Locate Doctor
                 </Link>
               </li>
               <li>
