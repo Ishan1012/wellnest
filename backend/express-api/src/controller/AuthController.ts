@@ -117,9 +117,59 @@ export const me = async (req: AuthRequest, res: Response) => {
                 return res.status(404).json({ success: false, message: "Doctor not found!" });
             }
             return res.status(200).json({ success: true, user: doctor });
+        } else if (user.role === "Admin") {
+            const admin = await authService.getAdminById(user.userId);
+            if (!admin) {
+                return res.status(404).json({ success: false, message: "Admin not found!" });
+            }
+            return res.status(200).json({ success: true, user: admin });
         } else {
             return res.status(401).json({ success: false, message: "Unauthorized user role!" });
         }
+    } catch (error) {
+        if (error instanceof Error) {
+            return res.status(500).json({ success: false, message: "Internal server error", error: error.message });
+        } else {
+            return res.status(500).json({ success: false, message: "Internal server error", error: String(error) });
+        }
+    }
+};
+
+export const forgotPassword = async (req: Request, res: Response) => {
+    try {
+        const { email } = req.body;
+        if (!email) {
+            return res.status(400).json({ success: false, message: "Email is required!" });
+        }
+
+        const sent = await authService.forgotPassword(email);
+        if (!sent) {
+            return res.status(404).json({ success: false, message: "No account found with this email!" });
+        }
+
+        return res.status(200).json({ success: true, message: "Password reset link sent to your email!" });
+    } catch (error) {
+        if (error instanceof Error) {
+            return res.status(500).json({ success: false, message: "Internal server error", error: error.message });
+        } else {
+            return res.status(500).json({ success: false, message: "Internal server error", error: String(error) });
+        }
+    }
+};
+
+export const resetPassword = async (req: Request, res: Response) => {
+    try {
+        const { token, password } = req.body;
+        if (!token || !password) {
+            return res.status(400).json({ success: false, message: "Token and password are required!" });
+        }
+
+        const updated = await authService.resetPassword(token, password);
+        if (!updated) {
+            return res.status(400).json({ success: false, message: "Invalid or expired password reset token!" });
+        }
+
+        return res.status(200).json({ success: true, message: "Password has been reset successfully!" });
     } catch (error) {
         if (error instanceof Error) {
             return res.status(500).json({ success: false, message: "Internal server error", error: error.message });

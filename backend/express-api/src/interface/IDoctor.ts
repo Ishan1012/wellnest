@@ -24,11 +24,13 @@ export interface IDoctor extends Document {
     experience: string;
     lat: number;
     lng: number;
-    notifications: {
+        notifications: {
         appointmentReminders: boolean;
         healthTips: boolean;
         promotionalUpdates: boolean;
     };
+    resetToken?: string | undefined;
+    resetTokenExpiry?: Date | undefined;
 }
 
 export interface PopulatedDoctor extends Document {
@@ -59,4 +61,6 @@ export interface PopulatedDoctor extends Document {
         healthTips: boolean;
         promotionalUpdates: boolean;
     };
+    resetToken?: string | undefined;
+    resetTokenExpiry?: Date | undefined;
 }

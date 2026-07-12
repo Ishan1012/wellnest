@@ -21,14 +21,17 @@ const LoginForm = (): JSX.Element => {
 	});
 	const [errors, setErrors] = useState<FormErrors>({});
 
-	const { login, isAuthenticated, googleLogin } = useAuth();
+	const { login, isAuthenticated, isAdmin, googleLogin } = useAuth();
 
 	useEffect(() => {
 		if (isAuthenticated) {
-			toast.error("User already exists");
-			router.replace("/");
+			if (isAdmin) {
+				router.replace("/dashboard");
+			} else {
+				router.replace("/");
+			}
 		}
-	}, []);
+	}, [isAuthenticated, isAdmin, router]);
 
 	const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
@@ -41,6 +44,19 @@ const LoginForm = (): JSX.Element => {
 
 			if (success) {
 				toast.success("Login successful!");
+				const session = localStorage.getItem("userSession");
+				if (session) {
+					try {
+						const token = JSON.parse(session).token;
+						const base64Url = token.split('.')[1];
+						const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+						const payload = JSON.parse(atob(base64));
+						if (payload && payload.role === "Admin") {
+							router.replace('/dashboard');
+							return;
+						}
+					} catch (e) {}
+				}
 				router.replace('/');
 			} else {
 				toast.error("Failed to login. Please try again.");
@@ -210,7 +226,7 @@ const LoginForm = (): JSX.Element => {
 								<div className="flex items-center">
 								</div>
 								<div className="text-sm">
-									<a href="#" className="font-medium text-emerald-600 hover:text-emerald-500">
+									<a href="/forgot-password" className="font-medium text-emerald-600 hover:text-emerald-500">
 										Forgot your password?
 									</a>
 								</div>

@@ -77,11 +77,19 @@ const patientSchema = new Schema<IPatient>({
         ref: 'Appointments',
         default: []
     },
-    medicalRecords: {
+        medicalRecords: {
         type: [Schema.Types.ObjectId],
         ref: 'Appointments',
         default: []
     },
+    resetToken: {
+        type: String,
+        required: false
+    },
+    resetTokenExpiry: {
+        type: Date,
+        required: false
+    }
 }, {
     timestamps: true,
     toJSON: { virtuals: true },

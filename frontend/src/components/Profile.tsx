@@ -302,11 +302,15 @@ const Profile: FC = () => {
 	const [isLoading, setIsLoading] = useState<boolean>(true);
 	const router = useRouter();
 
-	const { logout, getUser } = useAuth();
+	const { logout, getUser, isAdmin } = useAuth();
 
 	const isPatient = user?.id.startsWith('PAT') ?? false;
 
 	useEffect(() => {
+		if (isAdmin) {
+			router.replace('/dashboard');
+			return;
+		}
 		const fetchUserData = async () => {
 			try {
 				const data = await getUser();

@@ -126,7 +126,7 @@ const doctorSchema = new Schema<IDoctor>({
             return this.detailsComplete;
         },
     },
-    notifications: {
+        notifications: {
         appointmentReminders: {
             type: Boolean,
             default: true
@@ -139,6 +139,14 @@ const doctorSchema = new Schema<IDoctor>({
             type: Boolean,
             default: true
         },
+    },
+    resetToken: {
+        type: String,
+        required: false
+    },
+    resetTokenExpiry: {
+        type: Date,
+        required: false
     }
 }, {
     timestamps: true,

@@ -104,7 +104,13 @@ export type DoctorFormData = Omit<Doctor, 'id' | 'name' | 'email' | 'password' |
   profileUrl: string | File | null;
 };
 
-export type UserType = 'Patient' | 'Doctor';
+export type UserType = 'Patient' | 'Doctor' | 'Admin';
+
+export interface AdminStats {
+  totalDoctors: number;
+  totalPatients: number;
+  totalAppointments: number;
+}
 
 interface PredictedCondition {
   disease: string;

@@ -8,6 +8,7 @@ import articleRoutes from "./routes/ArticleRoutes";
 import feedbackRoutes from "./routes/FeedbackRoutes";
 import doctorRoutes from "./routes/DoctorRoutes";
 import patientRoutes from "./routes/PatientRoutes";
+import adminRoutes from "./routes/AdminRoutes";
 
 dotenv.config();
 
@@ -42,5 +43,6 @@ app.use("/api/v1/appointment", appointmentRoutes);
 app.use("/api/v1/consult", consultRoutes);
 app.use("/api/v1/article", articleRoutes);
 app.use("/api/v1/feedback", feedbackRoutes);
+app.use("/api/v1/admin", adminRoutes);
 
 export default app;

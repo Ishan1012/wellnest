@@ -50,3 +50,21 @@ export const bookAppointmentApi = (appointment: Omit<AppointmentDetails, 'id'>) 
 export const getAppointmentApi = (id: string) => api.get(`/appointment/${id}`);
 
 export const smartConsultApi = (symptoms: string) => api.post('/consult', { symptoms });
+
+export const forgotPasswordApi = (email: string) => api.post('/auth/forgot-password', { email });
+
+export const resetPasswordApi = (token: string, password: string) => api.post('/auth/reset-password', { token, password });
+
+export const getAdminStats = () => api.get('/admin/stats');
+
+export const getAdminDoctors = () => api.get('/admin/doctors');
+
+export const getAdminPatients = () => api.get('/admin/patients');
+
+export const getAdminAppointments = () => api.get('/admin/appointments');
+
+export const adminAddDoctor = (doctorDetails: any) => api.post('/admin/doctor', doctorDetails);
+
+export const updateDoctorStatus = (id: string, status: string) => api.patch(`/admin/doctor/${id}/status`, { status });
+
+export const updatePatientStatus = (id: string, status: string) => api.patch(`/admin/patient/${id}/status`, { status });

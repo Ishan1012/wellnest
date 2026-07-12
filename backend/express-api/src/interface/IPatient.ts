@@ -15,8 +15,10 @@ export interface IPatient extends Document{
     phone: string;
     isPhoneVerified: boolean;
     address?: string;
-    upcomingAppointments: Types.ObjectId[];
+        upcomingAppointments: Types.ObjectId[];
     medicalRecords: Types.ObjectId[];
+    resetToken?: string | undefined;
+    resetTokenExpiry?: Date | undefined;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -37,6 +39,8 @@ export interface PopulatedPatient extends Document {
     address?: string;
     upcomingAppointments: PopulatedAppointment[];
     medicalRecords: PopulatedAppointment[];
+    resetToken?: string | undefined;
+    resetTokenExpiry?: Date | undefined;
     createdAt: Date;
     updatedAt: Date;
 }

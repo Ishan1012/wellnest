@@ -45,15 +45,15 @@ export const verifyToken = (req: AuthRequest, res: Response, next: NextFunction)
 
 export const requireAdmin = (req: AuthRequest, res: Response, next: NextFunction) => {
     if(!req.user) {
-        return res.status(500).json({
+        return res.status(401).json({
             error: "Token verification failed.",
             message: "Internal server error during token verification.",
         });
     }
     if(req.user.role !== "Admin") {
-        return res.status(500).json({
-            error: "Token verification failed.",
-            message: "Internal server error during token verification.",
+        return res.status(403).json({
+            error: "Admin access required.",
+            message: "This resource is restricted to system administrators.",
         });
     }
     next();
@@ -61,17 +61,16 @@ export const requireAdmin = (req: AuthRequest, res: Response, next: NextFunction
 
 export const requireAdminRoleOrDoctorRole = (req: AuthRequest, res: Response, next: NextFunction) => {
     if (!req.user) {
-        return res.status(500).json({
+        return res.status(401).json({
             error: "Token verification failed.",
             message: "Internal server error during token verification.",
         });
     }
     if (req.user.role !== "Admin" && req.user.role !== "Doctor") {
-        return res.status(401).json({
+        return res.status(403).json({
             error: "Admin/Doctor access required.",
-            message: "Please connect with your adminstrator to access this resource.",
+            message: "Please connect with your administrator to access this resource.",
         });
     }
-    console.log("Reached");
     next();
 }

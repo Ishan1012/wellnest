@@ -20,11 +20,28 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [userSession, setUserSession] = useState<UserSession | null>(null);
+    const [isAdmin, setIsAdmin] = useState<boolean>(false);
+
+    const decodeJwt = (token: string) => {
+        try {
+            const base64Url = token.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+            return JSON.parse(jsonPayload);
+        } catch (e) {
+            return null;
+        }
+    };
 
     useEffect(() => {
         const storedSession = localStorage.getItem("userSession");
         if (storedSession) {
-            setUserSession(JSON.parse(storedSession));
+            const session = JSON.parse(storedSession);
+            setUserSession(session);
+            const decoded = decodeJwt(session.token);
+            setIsAdmin(decoded && decoded.role === "Admin");
         }
     }, []);
 
@@ -36,6 +53,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 const { message, userDetails } = response.data;
                 setUserSession(userDetails);
                 localStorage.setItem("userSession", JSON.stringify(userDetails));
+                const decoded = decodeJwt(userDetails.token);
+                setIsAdmin(decoded && decoded.role === "Admin");
                 return true;
             }
 
@@ -55,6 +74,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 const { message, userDetails } = response.data;
                 setUserSession(userDetails);
                 localStorage.setItem("userSession", JSON.stringify(userDetails));
+                const decoded = decodeJwt(userDetails.token);
+                setIsAdmin(decoded && decoded.role === "Admin");
                 return true;
             }
 
@@ -101,6 +122,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             if (response) {
                 const { message, userDetails } = response.data;
                 setUserSession(userDetails);
+                const decoded = decodeJwt(userDetails.token);
+                setIsAdmin(decoded && decoded.role === "Admin");
                 return true;
             }
         } catch (error) {
@@ -114,6 +137,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         try {
             localStorage.removeItem("userSession");
             setUserSession(null);
+            setIsAdmin(false);
             console.log("User logged out successfully");
         } catch (error) {
             console.error("Logout failed:", error);
@@ -123,7 +147,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const value = {
         userSession,
         isAuthenticated: !!userSession,
-        isAdmin: false,
+        isAdmin,
         login,
         signup,
         logout,
