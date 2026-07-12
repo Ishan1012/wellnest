@@ -164,11 +164,14 @@ const Step2_ChooseDoctor: React.FC<Step2Props> = ({ onSelect, details, nextStep,
     const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(details.doctor);
     const [selectedTime, setSelectedTime] = useState(details.time);
     const [selectedDate, setSelectedDate] = useState(details.date);
+    const [loadingSpecialties, setLoadingSpecialties] = useState(true);
+    const [loadingDoctors, setLoadingDoctors] = useState(false);
     const { logout } = useAuth();
     const router = useRouter();
 
     useEffect(() => {
         const fetchDoctors = async () => {
+            setLoadingSpecialties(true);
             try {
                 const response = await getDoctorsApi();
                 const data: Doctor[] = response.data.doctors;
@@ -185,6 +188,8 @@ const Step2_ChooseDoctor: React.FC<Step2Props> = ({ onSelect, details, nextStep,
                     console.error(error);
                     toast.error("An error occurred: " + errorMessage);
                 }
+            } finally {
+                setLoadingSpecialties(false);
             }
         }
         fetchDoctors();
@@ -199,12 +204,32 @@ const Step2_ChooseDoctor: React.FC<Step2Props> = ({ onSelect, details, nextStep,
         }
     }, [selectedSpecialty, allDoctors]);
 
+    const handleSpecialtyChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const val = e.target.value;
+        setSelectedSpecialty(val);
+        if (val) {
+            setLoadingDoctors(true);
+            setTimeout(() => {
+                setLoadingDoctors(false);
+            }, 600);
+        }
+    };
+
     const handleNext = () => {
         onSelect('doctor', selectedDoctor);
         onSelect('time', selectedTime);
         onSelect('date', selectedDate);
         nextStep();
     };
+
+    if (loadingSpecialties) {
+        return (
+            <div className="flex flex-col items-center justify-center py-20 text-emerald-750">
+                <div className="w-12 h-12 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin"></div>
+                <p className="mt-4 font-bold text-slate-700 animate-pulse">Loading available medical specialties...</p>
+            </div>
+        );
+    }
 
     return (
         <div>
@@ -214,7 +239,7 @@ const Step2_ChooseDoctor: React.FC<Step2Props> = ({ onSelect, details, nextStep,
                 <label className="font-bold text-2xl text-slate-800 mb-4 block">Select a Specialty</label>
                 <select
                     value={selectedSpecialty}
-                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSelectedSpecialty(e.target.value)}
+                    onChange={handleSpecialtyChange}
                     className="w-full mt-1 p-3 border border-slate-300 rounded-lg bg-white"
                 >
                     <option value="">-- Choose a specialty --</option>
@@ -224,15 +249,28 @@ const Step2_ChooseDoctor: React.FC<Step2Props> = ({ onSelect, details, nextStep,
 
             {selectedSpecialty && (
                 <div className="space-y-6">
-                    <h3 className="font-bold text-2xl text-slate-800">Select a Doctor</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        {filteredDoctors.map(doc => (
-                            <div key={doc.name} onClick={() => setSelectedDoctor(doc)} className={`p-6 border-2 rounded-xl cursor-pointer text-center ${selectedDoctor?.name === doc.name ? 'border-emerald-500 bg-emerald-50' : 'border-slate-200'}`}>
-                                <h3 className="font-bold text-xl">{doc.name}</h3>
-                                {selectedDoctor?.name === doc.name && <CheckCircle className="text-emerald-500 mx-auto mt-2" />}
-                            </div>
-                        ))}
-                    </div>
+                    <h3 className="font-bold text-2xl text-slate-800 flex items-center gap-2">
+                        Select a Doctor
+                        {loadingDoctors && (
+                            <div className="w-4.5 h-4.5 border-2 border-emerald-600 border-t-transparent rounded-full animate-spin"></div>
+                        )}
+                    </h3>
+                    
+                    {loadingDoctors ? (
+                        <div className="flex flex-col items-center justify-center py-10 text-slate-500 gap-2">
+                            <div className="w-8 h-8 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin"></div>
+                            <p className="text-xs font-semibold animate-pulse">Loading doctors for {selectedSpecialty}...</p>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-[fadeIn_0.3s_ease-out]">
+                            {filteredDoctors.map(doc => (
+                                <div key={doc.name} onClick={() => setSelectedDoctor(doc)} className={`p-6 border-2 rounded-xl cursor-pointer text-center ${selectedDoctor?.name === doc.name ? 'border-emerald-500 bg-emerald-50' : 'border-slate-200'}`}>
+                                    <h3 className="font-bold text-xl">{doc.name}</h3>
+                                    {selectedDoctor?.name === doc.name && <CheckCircle className="text-emerald-500 mx-auto mt-2" />}
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
             )}
 
