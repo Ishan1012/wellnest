@@ -174,7 +174,7 @@ const DoctorRegistration = (): JSX.Element => {
                         <div className="space-y-6">
                             {/* Medical Specialty Select */}
                             <div>
-                                <label htmlFor="specialty" className="block text-sm font-semibold text-emerald-900 mb-2">Medical Specialty *</label>
+                                <label htmlFor="specialty" className="block text-sm font-semibold text-emerald-900 mb-2">Medical Specialty</label>
                                 <select
                                     name="specialty"
                                     id="specialty"
@@ -193,7 +193,7 @@ const DoctorRegistration = (): JSX.Element => {
 
                             {/* Qualifications Input */}
                             <div>
-                                <label htmlFor="qualifications" className="block text-sm font-semibold text-emerald-900 mb-2">Qualifications (e.g., MBBS, MD) *</label>
+                                <label htmlFor="qualifications" className="block text-sm font-semibold text-emerald-900 mb-2">Qualifications (e.g., MBBS, MD)</label>
                                 <input
                                     type="text"
                                     name="qualifications"
@@ -209,7 +209,7 @@ const DoctorRegistration = (): JSX.Element => {
 
                             {/* Experience Input */}
                             <div>
-                                <label htmlFor="experience" className="block text-sm font-semibold text-emerald-900 mb-2">Years of Experience *</label>
+                                <label htmlFor="experience" className="block text-sm font-semibold text-emerald-900 mb-2">Years of Experience</label>
                                 <input
                                     type="number"
                                     name="experience"
@@ -225,7 +225,7 @@ const DoctorRegistration = (): JSX.Element => {
 
                             {/* Phone Input */}
                             <div>
-                                <label htmlFor="phone" className="block text-sm font-semibold text-emerald-900 mb-2">Contact Phone Number *</label>
+                                <label htmlFor="phone" className="block text-sm font-semibold text-emerald-900 mb-2">Contact Phone Number</label>
                                 <input
                                     type="tel"
                                     name="phone"
@@ -277,7 +277,7 @@ const DoctorRegistration = (): JSX.Element => {
 
                             {/* Address Input */}
                             <div>
-                                <label htmlFor="address" className="block text-sm font-semibold text-emerald-900 mb-2">Clinic/Practice Address *</label>
+                                <label htmlFor="address" className="block text-sm font-semibold text-emerald-900 mb-2">Clinic/Practice Address</label>
                                 <input
                                     type="text"
                                     name="address"
@@ -294,7 +294,7 @@ const DoctorRegistration = (): JSX.Element => {
                             <div className="grid grid-cols-2 gap-4">
                                 {/* Latitude Input */}
                                 <div>
-                                    <label htmlFor="lat" className="block text-sm font-semibold text-emerald-900 mb-2">Latitude (Map Location) *</label>
+                                    <label htmlFor="lat" className="block text-sm font-semibold text-emerald-900 mb-2">Latitude (Map Location)</label>
                                     <input
                                         type="number"
                                         name="lat"
@@ -310,7 +310,7 @@ const DoctorRegistration = (): JSX.Element => {
 
                                 {/* Longitude Input */}
                                 <div>
-                                    <label htmlFor="lng" className="block text-sm font-semibold text-emerald-900 mb-2">Longitude (Map Location) *</label>
+                                    <label htmlFor="lng" className="block text-sm font-semibold text-emerald-900 mb-2">Longitude (Map Location)</label>
                                     <input
                                         type="number"
                                         name="lng"
@@ -329,7 +329,7 @@ const DoctorRegistration = (): JSX.Element => {
 
                     <div className="mt-8 space-y-8">
                         <div>
-                            <label className="block text-sm font-semibold text-emerald-900 mb-3">Days of Availability *</label>
+                            <label className="block text-sm font-semibold text-emerald-900 mb-3">Days of Availability</label>
                             <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-7 gap-3">
                                 {daysOfWeek.map(day => (
                                     <label key={day} className={`flex items-center justify-center space-x-2 cursor-pointer p-2 rounded-lg border transition-colors ${formData.availability.includes(day) ? 'bg-emerald-100 border-emerald-500 text-emerald-800' : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-green-50'}`}>
@@ -348,7 +348,7 @@ const DoctorRegistration = (): JSX.Element => {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-semibold text-emerald-900 mb-3">Available Time Slots *</label>
+                            <label className="block text-sm font-semibold text-emerald-900 mb-3">Available Time Slots</label>
                             <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-3">
                                 {timeSlotsAvailable.map(timeSlot => (
                                     <label key={timeSlot} className={`flex items-center justify-center space-x-2 cursor-pointer p-2 rounded-lg border transition-colors ${formData.timeSlots.includes(timeSlot) ? 'bg-emerald-100 border-emerald-500 text-emerald-800' : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-green-50'}`}>
