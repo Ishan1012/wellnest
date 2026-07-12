@@ -29,8 +29,43 @@ const DoctorRegistration = (): JSX.Element => {
 
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [base64Image, setBase64Image] = useState<string | null>(null);
-    const { logout } = useAuth();
+    const { logout, getUser } = useAuth();
     const router = useRouter();
+
+    React.useEffect(() => {
+        const loadDoctorData = async () => {
+            try {
+                const user = await getUser();
+                if (user && user.id.startsWith('DOC')) {
+                    const doc = user as any;
+                    setFormData({
+                        detailsComplete: true,
+                        specialty: doc.specialty || '',
+                        qualifications: doc.qualifications || '',
+                        address: doc.address || '',
+                        phone: doc.phone || '',
+                        experience: doc.experience || '',
+                        profileUrl: doc.profileUrl || null,
+                        availability: doc.availability || [],
+                        timeSlots: doc.timeSlots || [],
+                        lat: doc.lat || 0,
+                        lng: doc.lng || 0,
+                        notifications: {
+                            appointmentReminders: doc.notifications?.appointmentReminders ?? true,
+                            healthTips: doc.notifications?.healthTips ?? false,
+                            promotionalUpdates: doc.notifications?.promotionalUpdates ?? false,
+                        },
+                    });
+                    if (doc.profileUrl) {
+                        setImagePreview(doc.profileUrl);
+                    }
+                }
+            } catch (err) {
+                console.error("Error loading doctor data:", err);
+            }
+        };
+        loadDoctorData();
+    }, [getUser]);
 
     const specialties: string[] = [
         'Consultant Physician (OPD)',
