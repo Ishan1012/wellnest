@@ -41,7 +41,7 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.19.2",
     "multer": "^2.0.2",
-    "nodemailer": "^7.0.10",
-    "uuid": "^7.0.3"
+    "nodemailer": "^9.0.3",
+    "uuid": "^14.0.1"
   }
 }
