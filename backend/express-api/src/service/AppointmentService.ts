@@ -78,7 +78,7 @@ export class AppointmentService {
                     }
                 }
             } catch (error) {
-                throw error;
+                console.error("Error during post-appointment asynchronous tasks (e.g., calendar/email):", error);
             }
 
             // Fire-and-forget: generate pre-visit AI summary asynchronously
