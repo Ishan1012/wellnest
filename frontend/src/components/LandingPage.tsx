@@ -3,7 +3,6 @@ import React, { JSX, useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import getTestimonials from '../context/FeedbackContext';
-import { getFeaturedArticles } from '../context/ArticleContext';
 import {
 	FaPhone,
 	FaMapMarkerAlt,
@@ -13,41 +12,22 @@ import {
 	FaLightbulb,
 	FaCheckCircle,
 	FaShieldAlt,
+	FaEnvelope,
 } from 'react-icons/fa';
 import { Article, Doctor, Testimonial } from '@/types/type';
 import { useAuth } from '@/context/AuthContext';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import LoadingSpinner from '@/pages/LoadingPage';
-import { expressApi, getDoctorsApi } from '@/apis/apis';
+import { expressApi } from '@/apis/apis';
 
 const LandingPage = (): JSX.Element => {
 	const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
 	const [isMounted, setIsMounted] = useState<boolean>(false);
-	const [featuredArticlesList, setFeaturedArticlesList] = useState<Article[]>([]);
 	const { logout } = useAuth();
 	const router = useRouter();
 
 	useEffect(() => {
-		const fetchFeaturedArticle = async (): Promise<void> => {
-			try {
-				const response = await getDoctorsApi();
-				const doctors: Doctor[] = response.data.doctors;
-				const data = await getFeaturedArticles(doctors);
-				setFeaturedArticlesList(data);
-			} catch (error) {
-				const errorMessage = String(error);
-				if (errorMessage.includes("Patient Id not found")) {
-					logout();
-					router.replace('/login');
-					toast.error("Session expired. Please log in again.");
-				} else {
-					console.error(error);
-					toast.error("An error occurred: " + errorMessage);
-				}
-			}
-		}
-
 		const fetchTestimonials = async (): Promise<void> => {
 			const data = await getTestimonials();
 			setTestimonials(data);
@@ -80,7 +60,6 @@ const LandingPage = (): JSX.Element => {
 
 		wakeUpExpressApi();
 		wakeUpQuartApi();
-		fetchFeaturedArticle();
 		fetchTestimonials();
 		setIsMounted(true);
 	}, []);
@@ -90,11 +69,11 @@ const LandingPage = (): JSX.Element => {
 	}
 
 	return (
-		<div className="min-h-screen bg-gradient-to-b from-white to-emerald-200/40">
+		<div className="min-h-screen bg-gradient-to-b from-white to-emerald-300/40">
 			{/* Hero Section */}
 			<section className="relative pt-30 min-h-screen flex items-center justify-center overflow-hidden mb-[15vh]">
 				{/* Background with overlay */}
-				<div className="absolute inset-0 bg-gradient-to-b from-emerald-200/90 to-emerald-300/90 z-10"></div>
+				<div className="absolute inset-0 bg-gradient-to-b from-emerald-300/90 to-emerald-400/90 z-10"></div>
 				<div className="absolute inset-0">
 					<Image
 						src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&q=80"
@@ -144,7 +123,7 @@ const LandingPage = (): JSX.Element => {
 						<div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-xl mx-auto pb-10">
 							<div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
 								<div className="flex items-center gap-3 mb-3">
-									<div className="p-2 bg-emerald-200 rounded-lg">
+									<div className="p-2 bg-emerald-300 rounded-lg">
 										<FaShieldAlt className="w-6 h-6 text-emerald-700" />
 									</div>
 									<h3 className="text-lg font-semibold text-gray-800">Quality Assured</h3>
@@ -153,7 +132,7 @@ const LandingPage = (): JSX.Element => {
 							</div>
 							<div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
 								<div className="flex items-center gap-3 mb-3">
-									<div className="p-2 bg-emerald-200 rounded-lg">
+									<div className="p-2 bg-emerald-300 rounded-lg">
 										<FaHeart className="w-6 h-6 text-emerald-700" />
 									</div>
 									<h3 className="text-lg font-semibold text-gray-800">Personalized Care</h3>
@@ -168,14 +147,14 @@ const LandingPage = (): JSX.Element => {
 
 				{/* Decorative Elements */}
 				<div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-white to-transparent z-20"></div>
-				<div className="absolute top-0 left-0 w-64 h-64 bg-emerald-400 rounded-full mix-blend-multiply filter blur-3xl opacity-40 animate-blob"></div>
-				<div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500 rounded-full mix-blend-multiply filter blur-3xl opacity-40 animate-blob animation-delay-2000"></div>
-				<div className="absolute -bottom-8 left-20 w-64 h-64 bg-emerald-600 rounded-full mix-blend-multiply filter blur-3xl opacity-40 animate-blob animation-delay-4000"></div>
+				<div className="absolute top-0 left-0 w-64 h-64 bg-emerald-500 rounded-full mix-blend-multiply filter blur-3xl opacity-40 animate-blob"></div>
+				<div className="absolute top-0 right-0 w-64 h-64 bg-emerald-600 rounded-full mix-blend-multiply filter blur-3xl opacity-40 animate-blob animation-delay-2000"></div>
+				<div className="absolute -bottom-8 left-20 w-64 h-64 bg-emerald-700 rounded-full mix-blend-multiply filter blur-3xl opacity-40 animate-blob animation-delay-4000"></div>
 			</section>
 
 			{/* About Section */}
 			<section className="min-h-screen py-24 bg-white relative flex items-center mb-[5vh]">
-				<div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(16,185,129,0.25),transparent_50%)]"></div>
+				<div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(16,185,129,0.25),#ffffff_99%)]"></div>
 				<div className="container mx-auto px-4 relative">
 					<div className="max-w-6xl mx-auto">
 						<div className="text-center mb-16">
@@ -209,7 +188,7 @@ const LandingPage = (): JSX.Element => {
 							</div>
 						</div>
 						<div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-							<div className="bg-emerald-100 p-8 rounded-2xl">
+							<div className="bg-emerald-200/70 p-8 rounded-2xl">
 								<h3 className="text-2xl font-semibold text-emerald-900 mb-6">Our Mission</h3>
 								<p className="text-gray-600 mb-6">
 									To provide exceptional healthcare services that improve the quality of life for our patients
@@ -230,7 +209,7 @@ const LandingPage = (): JSX.Element => {
 									</li>
 								</ul>
 							</div>
-							<div className="bg-emerald-100 p-8 rounded-2xl">
+							<div className="bg-emerald-200/70 p-8 rounded-2xl">
 								<h3 className="text-2xl font-semibold text-emerald-900 mb-6">Our Vision</h3>
 								<p className="text-gray-600 mb-6">
 									To provide accessible, innovative, and compassionate healthcare services to our community.
@@ -364,53 +343,50 @@ const LandingPage = (): JSX.Element => {
 							Services & Resources
 						</span>
 					</h2>
-					<div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto mb-16">
-						<div className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-							<h3 className="text-xl font-semibold text-emerald-900 mb-6">Services & Treatments</h3>
-							<ul className="space-y-3 text-gray-600">
-								<li className="flex items-center gap-2">
+					<div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto mb-16">
+						<div className="bg-white p-8 rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 md:col-span-2 md:row-span-2 flex flex-col justify-center">
+							<h3 className="text-xl font-semibold text-emerald-900 mb-4">Services & Treatments</h3>
+							<p className="text-gray-600 mb-6">
+								We offer a comprehensive range of medical services designed to meet all your healthcare needs under one roof. Our modern facility and expert team ensure you receive the highest standard of care, from initial diagnosis to full recovery.
+							</p>
+							<ul className="text-gray-600 grid grid-cols-1 sm:grid-cols-2 gap-4">
+								<li className="flex items-center gap-3">
 									<span className="w-2 h-2 bg-emerald-600 rounded-full"></span>
 									Preventive Care
 								</li>
-								<li className="flex items-center gap-2">
+								<li className="flex items-center gap-3">
 									<span className="w-2 h-2 bg-emerald-600 rounded-full"></span>
 									Diagnostic Services
 								</li>
-								<li className="flex items-center gap-2">
+								<li className="flex items-center gap-3">
 									<span className="w-2 h-2 bg-emerald-600 rounded-full"></span>
 									Specialized Treatments
 								</li>
-								<li className="flex items-center gap-2">
+								<li className="flex items-center gap-3">
 									<span className="w-2 h-2 bg-emerald-600 rounded-full"></span>
 									Follow-up Care
 								</li>
-								<li className="flex items-center gap-2">
+								<li className="flex items-center gap-3">
 									<span className="w-2 h-2 bg-emerald-600 rounded-full"></span>
 									Emergency Services
 								</li>
-								<li className="flex items-center gap-2">
+								<li className="flex items-center gap-3">
 									<span className="w-2 h-2 bg-emerald-600 rounded-full"></span>
 									Rehabilitation
+								</li>
+								<li className="flex items-center gap-3">
+									<span className="w-2 h-2 bg-emerald-600 rounded-full"></span>
+									Pediatric Care
+								</li>
+								<li className="flex items-center gap-3">
+									<span className="w-2 h-2 bg-emerald-600 rounded-full"></span>
+									Mental Health Counseling
 								</li>
 							</ul>
 						</div>
 
-						{/* Latest Blog Posts */}
-						<div className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-							<h3 className="text-xl font-semibold text-emerald-900 mb-6">Latest Blog Posts</h3>
-							<div className="space-y-6">
-								{featuredArticlesList.map((article) => (
-									<div key={article.id} className="group">
-										<Link href='/blog'><h4 className="font-medium text-gray-900 group-hover:text-emerald-700 transition-colors duration-300">{article.title}</h4></Link>
-										<p className="text-sm text-gray-600">Posted {article.createdAt}</p>
-										<p className="text-gray-600 mt-2">{article.excerpt.split(' ').slice(0, 30).join(' ')}...</p>
-									</div>
-								))}
-							</div>
-						</div>
-
 						{/* Patient Resources */}
-						<div className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+						<div className="bg-white p-8 rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 md:col-span-1">
 							<h3 className="text-xl font-semibold text-emerald-900 mb-6">Patient Resources</h3>
 							<ul className="space-y-3 text-gray-600">
 								<li className="flex items-center gap-2">
@@ -429,7 +405,7 @@ const LandingPage = (): JSX.Element => {
 						</div>
 
 						{/* Health Tips */}
-						<div className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+						<div className="bg-white p-8 rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 md:col-span-1">
 							<h3 className="text-xl font-semibold text-emerald-900 mb-6">Health Tips</h3>
 							<ul className="space-y-3 text-gray-600">
 								<li className="flex items-center gap-2">
@@ -448,39 +424,66 @@ const LandingPage = (): JSX.Element => {
 						</div>
 
 						{/* Contact Information */}
-						<div className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-							<h3 className="text-xl font-semibold text-emerald-900 mb-6">Contact Information</h3>
-							<div className="space-y-4 text-gray-600">
-								<div className="flex items-center gap-3 group">
-									<FaPhone className="w-5 h-5 text-emerald-700 group-hover:scale-110 transition-transform duration-300" />
-									<span className="group-hover:text-emerald-700 transition-colors duration-300">+91 70071 46609</span>
+						<div className="bg-emerald-50 p-8 rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 md:col-span-2 flex flex-col justify-center">
+							<h3 className="text-xl font-semibold text-emerald-900 mb-4">Contact Information</h3>
+							<p className="text-gray-700 mb-6">
+								We're here to answer your questions and provide the support you need. Reach out to us via phone, email, or visit our clinic directly.
+							</p>
+							<div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-gray-700">
+								<div className="flex items-center gap-4 group">
+									<div className="p-3 bg-emerald-100 rounded-full group-hover:bg-emerald-200 transition-colors duration-300">
+										<FaPhone className="w-5 h-5 text-emerald-700" />
+									</div>
+									<div>
+										<p className="text-sm text-emerald-800 font-medium mb-1">Phone</p>
+										<span className="group-hover:text-emerald-900 transition-colors duration-300 font-semibold">+91 70071 46609</span>
+									</div>
 								</div>
-								<div className="flex items-center gap-3 group">
-									<FaMapMarkerAlt className="w-5 h-5 text-emerald-700 group-hover:scale-110 transition-transform duration-300" />
-									<span className="group-hover:text-emerald-700 transition-colors duration-300">123 Medical Center Drive</span>
+								<div className="flex items-center gap-4 group">
+									<div className="p-3 bg-emerald-100 rounded-full group-hover:bg-emerald-200 transition-colors duration-300">
+										<FaEnvelope className="w-5 h-5 text-emerald-700" />
+									</div>
+									<div>
+										<p className="text-sm text-emerald-800 font-medium mb-1">Email</p>
+										<span className="group-hover:text-emerald-900 transition-colors duration-300 font-semibold">contact@wellnest.com</span>
+									</div>
 								</div>
-								<div className="flex items-center gap-3 group">
-									<FaComments className="w-5 h-5 text-emerald-700 group-hover:scale-110 transition-transform duration-300" />
-									<span className="group-hover:text-emerald-700 transition-colors duration-300">+91 70071 46609</span>
+								<div className="flex items-center gap-4 group">
+									<div className="p-3 bg-emerald-100 rounded-full group-hover:bg-emerald-200 transition-colors duration-300">
+										<FaMapMarkerAlt className="w-5 h-5 text-emerald-700" />
+									</div>
+									<div>
+										<p className="text-sm text-emerald-800 font-medium mb-1">Location</p>
+										<span className="group-hover:text-emerald-900 transition-colors duration-300 font-semibold">123 Medical Center Drive</span>
+									</div>
+								</div>
+								<div className="flex items-center gap-4 group">
+									<div className="p-3 bg-emerald-100 rounded-full group-hover:bg-emerald-200 transition-colors duration-300">
+										<FaComments className="w-5 h-5 text-emerald-700" />
+									</div>
+									<div>
+										<p className="text-sm text-emerald-800 font-medium mb-1">WhatsApp</p>
+										<span className="group-hover:text-emerald-900 transition-colors duration-300 font-semibold">+91 70071 46609</span>
+									</div>
 								</div>
 							</div>
 						</div>
 
 						{/* Operating Hours */}
-						<div className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-							<h3 className="text-xl font-semibold text-emerald-900 mb-6">Operating Hours</h3>
-							<div className="space-y-3 text-gray-600">
-								<div className="flex justify-between items-center group">
-									<span className="group-hover:text-emerald-700 transition-colors duration-300">Monday - Friday</span>
-									<span className="font-medium group-hover:text-emerald-700 transition-colors duration-300">9:00 AM - 6:00 PM</span>
+						<div className="bg-emerald-700 text-white p-8 rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 md:col-span-1">
+							<h3 className="text-xl font-semibold text-white mb-6">Operating Hours</h3>
+							<div className="space-y-4 text-emerald-50 mt-4">
+								<div className="flex flex-col group border-b border-emerald-600/50 pb-3">
+									<span className="text-sm text-emerald-200 group-hover:text-emerald-100 transition-colors duration-300 mb-1">Monday - Friday</span>
+									<span className="font-medium text-lg group-hover:text-white transition-colors duration-300">9:00 AM - 6:00 PM</span>
 								</div>
-								<div className="flex justify-between items-center group">
-									<span className="group-hover:text-emerald-700 transition-colors duration-300">Saturday</span>
-									<span className="font-medium group-hover:text-emerald-700 transition-colors duration-300">9:00 AM - 2:00 PM</span>
+								<div className="flex flex-col group border-b border-emerald-600/50 pb-3">
+									<span className="text-sm text-emerald-200 group-hover:text-emerald-100 transition-colors duration-300 mb-1">Saturday</span>
+									<span className="font-medium text-lg group-hover:text-white transition-colors duration-300">9:00 AM - 2:00 PM</span>
 								</div>
-								<div className="flex justify-between items-center group">
-									<span className="group-hover:text-emerald-700 transition-colors duration-300">Sunday</span>
-									<span className="font-medium group-hover:text-emerald-700 transition-colors duration-300">Closed</span>
+								<div className="flex flex-col group">
+									<span className="text-sm text-emerald-200 group-hover:text-emerald-100 transition-colors duration-300 mb-1">Sunday</span>
+									<span className="font-medium text-lg text-emerald-300 group-hover:text-white transition-colors duration-300">Closed</span>
 								</div>
 							</div>
 						</div>
