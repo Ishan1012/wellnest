@@ -226,7 +226,7 @@ const Step2_ChooseDoctor: React.FC<Step2Props> = ({ onSelect, details, nextStep,
         return (
             <div className="flex flex-col items-center justify-center py-20 text-emerald-750">
                 <div className="w-12 h-12 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin"></div>
-                <p className="mt-4 font-bold text-slate-700 animate-pulse">Loading available medical specialties...</p>
+                <p className="mt-4 font-bold text-slate-700 animate-pulse">Loading...</p>
             </div>
         );
     }
