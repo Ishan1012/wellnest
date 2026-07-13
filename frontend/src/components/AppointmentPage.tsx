@@ -41,7 +41,7 @@ const AppointmentPage = (): JSX.Element => {
     const [step, setStep] = useState(1);
     const router = useRouter();
     const auth = useAuth();
-    const { logout, userSession } = auth;
+    const { logout, userSession, getUser } = auth;
     const [loading, setLoading] = useState(false);
     const [bookedAppointmentId, setBookedAppointmentId] = useState<string>('');
 
@@ -60,6 +60,32 @@ const AppointmentPage = (): JSX.Element => {
             concern: '',
         },
     });
+
+    useEffect(() => {
+        const prefillPatientDetails = async () => {
+            if (userSession) {
+                try {
+                    const patient = await getUser();
+                    if (patient) {
+                        setAppointmentDetails(prev => ({
+                            ...prev,
+                            patientInfo: {
+                                ...prev.patientInfo,
+                                name: patient.name || prev.patientInfo.name,
+                                age: patient.age ? String(patient.age) : prev.patientInfo.age,
+                                address: patient.address || prev.patientInfo.address,
+                                phone: patient.phone || prev.patientInfo.phone,
+                                email: patient.email || prev.patientInfo.email,
+                            }
+                        }));
+                    }
+                } catch (error) {
+                    console.error("Failed to prefill patient details:", error);
+                }
+            }
+        };
+        prefillPatientDetails();
+    }, [userSession, getUser]);
 
     if (auth && !userSession) {
         logout();
