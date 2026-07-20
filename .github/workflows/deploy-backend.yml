@@ -47,10 +47,10 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           port: 22
           script: |
-            cd ~/wellnest
+            cd ~/express-api
             # Pull the latest image
-            sudo docker compose pull wellnest
-            # Recreate only the wellnest service container
-            sudo docker compose up -d --no-deps wellnest
+            sudo docker compose pull express-api
+            # Recreate only the express-api service container
+            sudo docker compose up -d --no-deps express-api
             # Clean up old/unused Docker images to prevent disk space issues on t3.micro
             sudo docker image prune -f
