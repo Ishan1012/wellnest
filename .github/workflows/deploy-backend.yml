@@ -30,8 +30,8 @@ jobs:
           file: ./backend/express-api/Dockerfile
           push: true
           tags: |
-            Ishan1012/wellnest-backend:latest
-            Ishan1012/wellnest-backend:${{ github.sha }}
+            ishan1012/wellnest-backend:latest
+            ishan1012/wellnest-backend:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 

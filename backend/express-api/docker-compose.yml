@@ -1,6 +1,6 @@
 services:
   express-api:
-    image: Ishan1012/wellnest-backend # The image you pushed to Docker Hub
+    image: ishan1012/wellnest-backend # The image you pushed to Docker Hub
     restart: always
     env_file:
       - .env
