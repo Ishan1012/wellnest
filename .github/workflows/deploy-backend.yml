@@ -49,8 +49,8 @@ jobs:
           script: |
             cd ~/wellnest
             # Pull the latest image
-            sudo docker compose pull express-api
-            # Recreate only the express-api service container
-            sudo docker compose up -d --no-deps express-api
+            sudo docker compose pull wellnest
+            # Recreate only the wellnest service container
+            sudo docker compose up -d --no-deps wellnest
             # Clean up old/unused Docker images to prevent disk space issues on t3.micro
             sudo docker image prune -f
