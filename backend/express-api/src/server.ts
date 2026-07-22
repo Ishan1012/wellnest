@@ -13,7 +13,7 @@ const startServer = async () => {
     await connectDB();
     await seedAdmin();
     try {
-        const domain = process.env.DOMAIN || "localhost";
+        const domain = "api.wellnestjs.tech";
         const sslOptions = {
             key: fs.readFileSync(`/etc/letsencrypt/live/${domain}/privkey.pem`),
             cert: fs.readFileSync(`/etc/letsencrypt/live/${domain}/fullchain.pem`)
