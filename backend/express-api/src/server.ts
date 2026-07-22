@@ -15,8 +15,8 @@ const startServer = async () => {
     try {
         const domain = process.env.DOMAIN;
         const sslOptions = {
-            key: fs.readFileSync(`/etc/letsencrypt/live/${domain}/privkey.pem`),
-            cert: fs.readFileSync(`/etc/letsencrypt/live/${domain}/fullchain.pem`)
+            key: fs.readFileSync(`/etc/letsencrypt/live/${domain}/privkey1.pem`),
+            cert: fs.readFileSync(`/etc/letsencrypt/live/${domain}/fullchain1.pem`)
         };
         
         https.createServer(sslOptions, app).listen(PORT, () => {
