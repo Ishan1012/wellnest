@@ -13,7 +13,11 @@ const startServer = async () => {
     await connectDB();
     await seedAdmin();
     try {
-        const domain = "api.wellnestjs.tech";
+        const domain = process.env.DOMAIN;
+        if(!domain) {
+            throw new Error("DOMAIN is not defined");
+        }
+        console.log(domain);
         const sslOptions = {
             key: fs.readFileSync(`/etc/letsencrypt/live/${domain}/privkey.pem`),
             cert: fs.readFileSync(`/etc/letsencrypt/live/${domain}/fullchain.pem`)
