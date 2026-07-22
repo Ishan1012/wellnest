@@ -13,10 +13,10 @@ const startServer = async () => {
     await connectDB();
     await seedAdmin();
     try {
-        const domain = process.env.DOMAIN;
+        const domain = process.env.DOMAIN || "localhost";
         const sslOptions = {
-            key: fs.readFileSync(`/etc/letsencrypt/live/${domain}/privkey1.pem`),
-            cert: fs.readFileSync(`/etc/letsencrypt/live/${domain}/fullchain1.pem`)
+            key: fs.readFileSync(`/etc/letsencrypt/live/${domain}/privkey.pem`),
+            cert: fs.readFileSync(`/etc/letsencrypt/live/${domain}/fullchain.pem`)
         };
         
         https.createServer(sslOptions, app).listen(PORT, () => {
